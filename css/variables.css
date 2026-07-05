@@ -1,0 +1,152 @@
+/*
+  Design tokens for Flow — the whole visual language lives here.
+  Every other stylesheet should reference these custom properties rather
+  than hardcoding colors, spacing, or type sizes.
+*/
+
+:root {
+  /* ---- Type ---- */
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, Menlo, monospace;
+
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-base: 0.9375rem;/* 15px */
+  --text-md: 1.0625rem;  /* 17px */
+  --text-lg: 1.25rem;    /* 20px */
+  --text-xl: 1.5rem;     /* 24px */
+  --text-2xl: 1.875rem;  /* 30px */
+  --text-3xl: 2.5rem;    /* 40px */
+  --text-4xl: 3.5rem;    /* 56px */
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* ---- Spacing (4px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---- Radius ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-full: 999px;
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+
+  /* ---- Elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(20, 21, 30, 0.06);
+  --shadow-md: 0 4px 16px rgba(20, 21, 30, 0.08), 0 1px 3px rgba(20, 21, 30, 0.06);
+  --shadow-lg: 0 16px 40px rgba(20, 21, 30, 0.14), 0 2px 8px rgba(20, 21, 30, 0.08);
+  --shadow-glow: 0 0 0 1px var(--accent-a-20, rgba(91, 95, 239, 0.2)), 0 8px 24px var(--accent-a-30, rgba(91, 95, 239, 0.25));
+
+  --glass-blur: blur(20px) saturate(1.6);
+
+  --z-nav: 10;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-palette: 300;
+  --z-toast: 400;
+  --z-confetti: 500;
+
+  /* ---- Priority colors (stable across themes) ---- */
+  --priority-low: #6b9bd8;
+  --priority-medium: #d4a72c;
+  --priority-high: #e0793e;
+  --priority-urgent: #e5484d;
+
+  /* ---- Semantic ---- */
+  --success: #2fa876;
+  --success-tint: #e7f7f0;
+  --warning: #d4a72c;
+  --warning-tint: #fbf3dc;
+  --danger: #e5484d;
+  --danger-tint: #fdeced;
+
+  /* ---- Accent presets (fallback flat hexes; color-mix used where supported) ---- */
+  --accent-indigo-500: #5b5fef; --accent-indigo-600: #4548d1;
+  --accent-blue-500: #3b82f6;   --accent-blue-600: #2563eb;
+  --accent-emerald-500: #10b981;--accent-emerald-600: #059669;
+  --accent-rose-500: #f43f5e;   --accent-rose-600: #e11d48;
+  --accent-amber-500: #e08a1e;  --accent-amber-600: #c2740f;
+  --accent-teal-500: #14b8a6;   --accent-teal-600: #0d9488;
+  --accent-violet-500: #8b5cf6; --accent-violet-600: #7c3aed;
+
+  /* Active accent — JS swaps these two, everything else derives from them */
+  --accent-500: var(--accent-indigo-500);
+  --accent-600: var(--accent-indigo-600);
+  --accent-tint: #eef0fe;
+  --accent-tint: color-mix(in srgb, var(--accent-500) 10%, var(--color-bg, #fafaf9));
+  --accent-a-20: rgba(91, 95, 239, 0.2);
+  --accent-a-30: rgba(91, 95, 239, 0.3);
+}
+
+/* ---------------- Light theme (default) ---------------- */
+:root,
+[data-theme="light"] {
+  --color-bg: #fafaf9;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f4f4f6;
+  --color-surface-sunken: #f1f1f4;
+  --color-border: #e7e7ee;
+  --color-border-strong: #d7d8e2;
+  --color-text: #16181d;
+  --color-text-secondary: #5b6270;
+  --color-text-tertiary: #8b90a0;
+  --color-on-accent: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --scrim: rgba(20, 21, 26, 0.4);
+  color-scheme: light;
+}
+
+/* ---------------- Dark theme ---------------- */
+[data-theme="dark"] {
+  --color-bg: #14151a;
+  --color-surface: #1c1e26;
+  --color-surface-hover: #23252f;
+  --color-surface-sunken: #101116;
+  --color-border: #2c2e39;
+  --color-border-strong: #3a3d4b;
+  --color-text: #edeef2;
+  --color-text-secondary: #9aa0ae;
+  --color-text-tertiary: #6b7080;
+  --color-on-accent: #ffffff;
+  --glass-bg: rgba(28, 30, 38, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --scrim: rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Font-size preference (Settings → text size) applied to root */
+[data-fontsize="sm"] { font-size: 14px; }
+[data-fontsize="md"] { font-size: 16px; }
+[data-fontsize="lg"] { font-size: 18px; }
+
+/* Compact density mode */
+[data-density="compact"] {
+  --space-3: 0.5rem;
+  --space-4: 0.75rem;
+  --space-5: 0.875rem;
+  --space-6: 1rem;
+}

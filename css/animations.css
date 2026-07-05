@@ -1,0 +1,74 @@
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+@keyframes slide-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@keyframes task-in { from { opacity: 0; transform: translateY(6px) scale(0.99); } to { opacity: 1; transform: none; } }
+
+@keyframes task-complete-pulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.015); background: var(--success-tint); }
+  100% { transform: scale(1); }
+}
+
+@keyframes task-remove {
+  to { opacity: 0; transform: translateX(24px) scale(0.97); max-height: 0; margin: 0; padding-top: 0; padding-bottom: 0; }
+}
+.task-item.is-removing { animation: task-remove var(--dur-base) var(--ease-in-out) forwards; overflow: hidden; }
+
+@keyframes toast-in { from { opacity: 0; transform: translateY(16px) scale(0.95); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px) scale(0.96); } }
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+@keyframes pop-in { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
+.pop-in { animation: pop-in var(--dur-slow) var(--ease-spring); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 900ms linear infinite; }
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 var(--accent-a-30); }
+  100% { box-shadow: 0 0 0 12px rgba(0,0,0,0); }
+}
+.pulse-ring { animation: pulse-ring 1.6s var(--ease-out) infinite; }
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.shake { animation: shake 420ms; }
+
+/* Confetti */
+.confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: var(--z-confetti); overflow: hidden; }
+.confetti-piece {
+  position: absolute; top: -10px; width: 8px; height: 14px; opacity: 0.95;
+  animation-name: confetti-fall; animation-timing-function: cubic-bezier(0.35, 0.4, 0.65, 1); animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) translateX(var(--drift, 40px)) rotate(var(--spin, 480deg)); opacity: 0.9; }
+}
+
+/* Achievement unlock celebration */
+@keyframes badge-pop {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+.badge-pop { animation: badge-pop 560ms var(--ease-spring); }
+
+/* Page/view transitions */
+.view { animation: view-in var(--dur-base) var(--ease-out); }
+@keyframes view-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Success checkmark draw (used in modals / notifications-granted state) */
+.check-draw path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: draw 420ms var(--ease-out) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece, .pulse-ring, .empty-state svg { animation: none !important; }
+}

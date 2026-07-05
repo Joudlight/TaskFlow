@@ -1,0 +1,212 @@
+.tables-layout {
+  display: flex; gap: var(--space-4); flex: 1; min-height: 0;
+}
+.tables-list {
+  width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-2);
+  border-right: 1px solid var(--color-border); padding-right: var(--space-3);
+  overflow-y: auto; max-height: calc(100dvh - 280px);
+}
+.tables-list-item {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  cursor: pointer; transition: background var(--dur-fast);
+  border: none; background: none; width: 100%; text-align: left; font: inherit;
+  color: var(--color-text-secondary); font-size: var(--text-sm);
+}
+.tables-list-item:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.tables-list-item.is-active { background: var(--accent-tint); color: var(--accent-600); }
+.tables-list-item__name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.tables-list-item__dims { font-size: 11px; color: var(--color-text-tertiary); flex-shrink: 0; }
+.tables-list-item__actions {
+  display: flex; align-items: center; gap: 2px; opacity: 0;
+  transition: opacity var(--dur-fast);
+  flex-shrink: 0;
+}
+.tables-list-item:hover .tables-list-item__actions { opacity: 1; }
+.tables-list-item__edit, .tables-list-item__delete {
+  width: 24px; height: 24px; border-radius: 50%; border: none; background: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--color-text-tertiary); cursor: pointer;
+  transition: background var(--dur-fast), color var(--dur-fast);
+  flex-shrink: 0;
+}
+.tables-list-item__edit:hover { background: var(--accent-tint); color: var(--accent-500); }
+.tables-list-item__delete:hover { background: var(--danger-tint); color: var(--danger); }
+.tables-list-item__edit svg, .tables-list-item__delete svg { width: 14px; height: 14px; }
+.tables-list-item__rename-input {
+  flex: 1; font-weight: 600; font-size: inherit; font-family: inherit;
+  border: none; background: var(--color-surface); padding: 0 var(--space-1);
+  color: var(--color-text); outline: 1px solid var(--accent-500);
+  border-radius: var(--radius-sm); min-width: 0;
+}
+
+.tables-editor {
+  flex: 1; display: flex; flex-direction: column; gap: var(--space-3); min-width: 280px; overflow: auto;
+}
+.tables-editor__header {
+  display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
+}
+.tables-editor__name {
+  padding: var(--space-1) 0; background: none; border: none;
+  font-size: var(--text-lg); font-weight: 700; color: var(--color-text); flex: 1; min-width: 120px;
+  border-bottom: 1px solid transparent; transition: border-color var(--dur-fast);
+}
+.tables-editor__name:focus { outline: none; border-bottom-color: var(--accent-500); }
+.tables-editor__name::placeholder { color: var(--color-text-tertiary); }
+
+.tables-empty {
+  text-align: center; padding: var(--space-12) var(--space-6);
+  color: var(--color-text-secondary);
+}
+.tables-empty svg { width: 72px; height: 72px; margin: 0 auto var(--space-4); color: var(--color-text-tertiary); opacity: 0.6; }
+.tables-empty h3 { font-size: var(--text-lg); color: var(--color-text); margin-bottom: var(--space-1); }
+.tables-empty p { font-size: var(--text-sm); max-width: 300px; margin: 0 auto; }
+
+.tables-scroll {
+  overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.tables-table {
+  width: 100%; border-collapse: collapse; font-size: var(--text-sm);
+  table-layout: fixed; min-width: 400px;
+}
+.tables-table th, .tables-table td {
+  border: 1px solid var(--color-border); padding: var(--space-2) var(--space-3);
+  text-align: left; vertical-align: top; min-width: 100px;
+  position: relative;
+}
+.tables-table th {
+  background: var(--color-surface-sunken); font-weight: 700; color: var(--color-text-secondary);
+  font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.02em;
+}
+.tables-table td {
+  background: var(--color-surface); color: var(--color-text);
+}
+.tables-table th[contenteditable="true"]:focus, .tables-table td[contenteditable="true"]:focus {
+  outline: 2px solid var(--accent-500); outline-offset: -2px;
+  background: var(--color-surface);
+}
+td.tables-table__first-col {
+  background: var(--color-surface-sunken) !important;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.tables-table td.is-empty::after {
+  content: 'Type here…'; color: var(--color-text-tertiary); pointer-events: none;
+  font-style: italic; font-size: var(--text-xs);
+}
+
+/* ─── Row Numbers & Corner ─── */
+
+.tables-table__rownum-col { width: 36px !important; min-width: 36px !important; }
+
+.tables-table__corner {
+  width: 36px; min-width: 36px; max-width: 36px;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  padding: 0; position: relative;
+}
+.tables-table__corner::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--color-border) 0%, transparent 60%);
+  opacity: 0.4;
+}
+
+.tables-table__rownum {
+  width: 36px; min-width: 36px; max-width: 36px;
+  background: var(--color-surface-sunken) !important;
+  color: var(--color-text-tertiary);
+  font-size: 10px; font-weight: 600; text-align: center;
+  vertical-align: middle; padding: var(--space-2) 0 !important;
+  cursor: default; user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Toolbar Groups ─── */
+
+.tables-actions {
+  display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+}
+.tables-actions__group {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 4px;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+.tables-actions__group .btn {
+  white-space: nowrap;
+}
+
+.tables-mobile-bar {
+  display: none; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);
+}
+.tables-mobile-bar button { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); font-weight: 600; color: var(--accent-500); background: none; border: none; cursor: pointer; }
+.tables-mobile-bar button svg { width: 18px; height: 18px; }
+
+/* ─── Context Menu ─── */
+
+.table-context-menu {
+  position: fixed;
+  z-index: 1000;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1);
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  animation: pop-in var(--dur-fast) var(--ease-spring);
+}
+
+.table-context-menu[hidden] { display: none; }
+
+.table-context-menu button {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.table-context-menu button:hover {
+  background: var(--color-surface-hover);
+}
+
+.table-context-menu hr {
+  margin: 3px 6px;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 720px) {
+  .tables-list { display: none; width: 100%; border-right: none; padding-right: 0; max-height: none; }
+  .tables-list.is-visible { display: flex; }
+  .tables-editor.is-hidden { display: none; }
+  .tables-mobile-bar { display: flex; }
+}
+
+/* Table creation modal */
+.create-table-form { display: flex; flex-direction: column; gap: var(--space-4); }
+.create-table-form .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+@media (max-width: 480px) { .create-table-form .field-row { grid-template-columns: 1fr; } }
+.create-table-preview {
+  display: grid; gap: 2px; padding: var(--space-3);
+  background: var(--color-surface-sunken); border-radius: var(--radius-md);
+  justify-content: center;
+}
+.create-table-preview__cell {
+  width: 32px; height: 24px; border-radius: 3px;
+  background: var(--color-border); transition: background var(--dur-fast);
+}
+.create-table-preview__cell.is-header { background: var(--accent-500); }
+.create-table-preview__cell.is-data { background: var(--color-border-strong); }

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flow — Free Task Manager, Calendar &amp; Focus Timer (PWA)</title>
+<meta name="description" content="Flow is a free, fast, offline-first to-do list with calendar, Pomodoro focus timer, and productivity analytics. No sign-up, no ads, no tracking — runs entirely in your browser.">
+<meta name="keywords" content="to-do list, task manager, productivity app, PWA, offline todo app, calendar app, pomodoro timer, free todo list, task tracker">
+<meta name="author" content="Flow">
+<meta name="robots" content="index, follow">
+<meta name="color-scheme" content="light dark">
+
+<!-- Update these three to your real GitHub Pages URL after deploying -->
+<link rel="canonical" href="https://your-username.github.io/flow-todo-app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Flow — Free Task Manager, Calendar &amp; Focus Timer">
+<meta property="og:description" content="A free, offline-first to-do list with calendar, focus timer, and analytics. No sign-up, no ads.">
+<meta property="og:image" content="https://your-username.github.io/flow-todo-app/icons/og-image.png">
+<meta property="og:url" content="https://your-username.github.io/flow-todo-app/">
+<meta property="og:site_name" content="Flow">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Flow — Free Task Manager, Calendar &amp; Focus Timer">
+<meta name="twitter:description" content="A free, offline-first to-do list with calendar, focus timer, and analytics. No sign-up, no ads.">
+<meta name="twitter:image" content="https://your-username.github.io/flow-todo-app/icons/og-image.png">
+
+<meta name="theme-color" content="#fafaf9">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Flow">
+<meta name="mobile-web-app-capable" content="yes">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Flow",
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "Any (runs in any modern web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "A free, offline-first to-do list and productivity app with calendar, Pomodoro focus timer, and analytics dashboard."
+}
+</script>
+
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/calendar.css">
+<link rel="stylesheet" href="css/pomodoro.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/print.css">
+<link rel="stylesheet" href="css/notes.css">
+<link rel="stylesheet" href="css/tables.css">
+</head>
+<body>
+<a href="#mainContent" class="skip-link">Skip to content</a>
+<div id="ariaLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
+<!-- ============ Welcome screen (first run only) ============ -->
+<div id="welcomeScreen" class="modal-overlay" hidden style="align-items:center;">
+  <div class="modal modal--sm pop-in" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <div class="modal__body" style="text-align:center;padding-top:44px;padding-bottom:36px;">
+      <div id="tourStepContent">
+        <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--accent-500),var(--accent-600));margin:0 auto 20px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-glow);">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h1 id="tourTitle" style="font-size:22px;margin-bottom:8px;">Welcome to Flow</h1>
+        <p id="tourDesc" class="text-secondary" style="margin-bottom:26px;max-width:340px;margin-left:auto;margin-right:auto;min-height:40px;">A fast, private task manager that lives entirely on this device — no account, no tracking, works offline.</p>
+      </div>
+      <div id="tourDots" style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button id="tourPrevBtn" class="btn btn-secondary" hidden style="flex:1;">Back</button>
+        <button id="tourNextBtn" class="btn btn-primary" style="flex:1;">Next</button>
+        <button id="tourFinishBtn" class="btn btn-primary" hidden style="flex:1;">Start using Flow</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+  <header class="app-header">
+    <button id="sidebarToggleBtn" class="btn-icon sidebar-toggle-btn" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="app-header__brand">
+      <svg class="app-header__brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="32" y2="32"><stop offset="0" stop-color="var(--accent-500)"/><stop offset="1" stop-color="var(--accent-600)"/></linearGradient></defs>
+        <rect width="32" height="32" rx="9" fill="url(#brandGrad)"/>
+        <path d="M9 16.5l4.5 4.5L23 11" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="app-header__brand-name">Flow</span>
+    </div>
+    <div class="app-header__search">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input id="taskSearchInput" type="search" placeholder="Search tasks…" aria-label="Search tasks">
+      <kbd>/</kbd>
+    </div>
+    <div class="app-header__actions">
+      <button id="commandPaletteTrigger" class="btn-icon" aria-label="Command palette">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 9l3 3-3 3M13 15h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="shareTriggerBtn" class="btn-icon" aria-label="Share Flow">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="2.5" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="19" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6" stroke="currentColor" stroke-width="1.8"/></svg>
+      </button>
+      <button id="achievementsTriggerBtn" class="btn-icon" aria-label="Achievements">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M8 4h8v5a4 4 0 01-8 0V4z" stroke="currentColor" stroke-width="1.8"/><path d="M8 5H5a3 3 0 003 3M16 5h3a3 3 0 01-3 3M9 20h6M12 13v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8L6 18M18 6l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button id="settingsTriggerBtn" class="btn-icon" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19 12a7 7 0 00-.2-1.6l2-1.6-2-3.4-2.4.7a7 7 0 00-1.4-.8L14.6 3H9.4l-.4 2.3a7 7 0 00-1.4.8l-2.4-.7-2 3.4 2 1.6a7 7 0 000 3.2l-2 1.6 2 3.4 2.4-.7c.4.3.9.6 1.4.8l.4 2.3h5.2l.4-2.3c.5-.2 1-.5 1.4-.8l2.4.7 2-3.4-2-1.6c.1-.5.2-1 .2-1.6z" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+      <button id="helpTriggerBtn" class="btn-icon" aria-label="Help">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 1.8-2.5 3.5M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <div id="sidebarScrim" class="sidebar-scrim"></div>
+    <aside id="appSidebar" class="app-sidebar" aria-label="Main navigation">
+      <div>
+        <div class="sidebar-section__title">Views</div>
+        <nav class="sidebar-nav">
+          <button class="sidebar-link is-active" data-view="tasks"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6h11M9 12h11M9 18h11M5 6h.01M5 12h.01M5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tasks</button>
+          <button class="sidebar-link" data-view="calendar"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg>Calendar</button>
+          <button class="sidebar-link" data-view="notes"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v2l-4 4 4 4v2H6v-2l4-4-4-4V4z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Notes</button>
+          <button class="sidebar-link" data-view="tables"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.8"/></svg>Tables</button>
+          <button class="sidebar-link" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Dashboard</button>
+          <button class="sidebar-link" data-view="focus"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Focus</button>
+        </nav>
+      </div>
+      <div>
+        <div class="sidebar-section__title">Filters</div>
+        <nav class="sidebar-nav">
+          <button class="sidebar-link is-active" data-filter="all"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>All tasks<span class="count"></span></button>
+          <button class="sidebar-link" data-filter="today"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg>Today<span class="count"></span></button>
+          <button class="sidebar-link" data-filter="upcoming"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Upcoming<span class="count"></span></button>
+          <button class="sidebar-link" data-filter="favorites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.9 6.6L22 9.6l-5.2 4.8L18.2 22 12 18.3 5.8 22 7.2 14.4 2 9.6l7.1-1z"/></svg>Favorites<span class="count"></span></button>
+          <button class="sidebar-link" data-filter="pinned"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 2.5l7 7-3 3-1-1-4 4 .5 5-2-.3-3-5-5 5-1-1 5-5-5-3-.3-2 5 .5 4-4-1-1z"/></svg>Pinned<span class="count"></span></button>
+          <button class="sidebar-link" data-filter="archive"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="5" rx="1" stroke="currentColor" stroke-width="1.8"/><path d="M5 9v9a2 2 0 002 2h10a2 2 0 002-2V9M10 13h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Archive<span class="count"></span></button>
+          <button class="sidebar-link" data-filter="trash"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Trash<span class="count"></span></button>
+        </nav>
+      </div>
+      <div>
+        <div class="sidebar-section__title">Categories</div>
+        <nav id="sidebarCategoryList" class="sidebar-nav"></nav>
+        <button id="sidebarAddCategoryBtn" class="sidebar-link sidebar-link--add" style="font-size:12px;gap:4px;justify-content:center;" type="button">+ Add category</button>
+      </div>
+      <div class="sidebar-datetime">
+        <div class="sidebar-datetime__time" id="sidebarClock">00:00</div>
+        <div class="sidebar-datetime__date" id="sidebarDate">Loading…</div>
+      </div>
+      <div class="sidebar-storage">
+        <div id="sidebarStorageLabel">0 KB used locally</div>
+        <div class="sidebar-storage__bar"><span id="sidebarStorageBar" style="width:0%"></span></div>
+      </div>
+    </aside>
+
+    <main id="mainContent" class="app-main">
+      <section id="view-tasks" class="view">
+        <div class="view-header">
+          <div><h1 id="tasksViewTitle">All tasks</h1><p>Everything on your plate, one clear list.</p></div>
+          <div class="flex-row">
+            <button id="printBtn" class="btn btn-secondary btn-sm">Print</button>
+            <button id="selectModeBtn" class="btn btn-secondary btn-sm">Select</button>
+          </div>
+        </div>
+
+        <div class="quick-add">
+          <svg class="quick-add__icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="quickAddInput" type="text" placeholder='Add a task… try "Team sync tomorrow 4pm"' aria-label="Quick add a task">
+          <button id="quickAddBtn" class="btn btn-primary btn-sm">Add</button>
+        </div>
+        <div id="quickAddHint" class="quick-add-hint" aria-live="polite"></div>
+
+        <div id="bulkBar" class="bulk-bar" hidden>
+          <span id="bulkCount">0 selected</span>
+          <button id="bulkCompleteBtn" class="btn-ghost btn-sm">Complete</button>
+          <select id="bulkMoveSelect" class="select-native" aria-label="Move selected to category"><option value="">Move to…</option></select>
+          <button id="bulkDeleteBtn" class="btn-ghost btn-sm">Delete</button>
+          <button id="bulkCancelBtn" class="btn-ghost btn-sm" style="margin-left:auto;">Cancel</button>
+        </div>
+
+        <div class="toolbar">
+          <select id="sortSelect" class="select-native" aria-label="Sort tasks">
+            <option value="manual">Manual order</option>
+            <option value="date">Due date</option>
+            <option value="name">Name</option>
+            <option value="priority">Priority</option>
+            <option value="progress">Progress</option>
+            <option value="category">Category</option>
+            <option value="created">Recently created</option>
+            <option value="modified">Recently modified</option>
+          </select>
+          <select id="groupBySelect" class="select-native" aria-label="Group tasks">
+            <option value="date">Group by date</option>
+            <option value="category">Group by category</option>
+          </select>
+        </div>
+
+        <div id="taskListContainer" aria-live="polite"></div>
+      </section>
+
+      <section id="view-calendar" class="view" hidden data-print-title="Calendar">
+        <div class="view-header"><div><h1>Calendar</h1><p>Click any day to add a task, or drag a task to reschedule it.</p></div></div>
+        <div class="cal-toolbar">
+          <div class="flex-row cal-nav">
+            <button id="calPrevBtn" class="btn-icon" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button id="calTodayBtn" class="btn btn-secondary btn-sm">Today</button>
+            <button id="calNextBtn" class="btn-icon" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+          <div id="calToolbarTitle" class="cal-toolbar__title"></div>
+          <div class="tabs" role="tablist" aria-label="Calendar view" style="margin-left:auto;">
+            <button class="tab-btn is-active" data-cal-mode="month" role="tab">Month</button>
+            <button class="tab-btn" data-cal-mode="week" role="tab">Week</button>
+            <button class="tab-btn" data-cal-mode="agenda" role="tab">Agenda</button>
+          </div>
+        </div>
+        <div id="calendarGrid"></div>
+      </section>
+
+      <section id="view-dashboard" class="view" hidden data-print-title="Dashboard">
+        <div class="view-header"><div><h1>Dashboard</h1><p>Your productivity, at a glance.</p></div></div>
+        <div class="streak-card">
+          <svg class="streak-card__flame" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><path d="M12 2s5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 1 1 2 2 1-1-3 0-5 1-7z"/></svg>
+          <div><div id="streakCurrentValue" class="streak-card__value">0</div><div class="streak-card__label">day streak</div></div>
+          <div class="streak-card__best">Best<strong id="streakBestValue">0</strong></div>
+        </div>
+        <div id="quoteCard" class="quote-card"></div>
+        <details style="margin-bottom:20px;">
+          <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--color-text-secondary);">My favorite quotes</summary>
+          <div id="quoteFavoritesList" style="margin-top:10px;"></div>
+        </details>
+        <div id="statGrid" class="stat-grid"></div>
+        <div class="dash-grid">
+          <div>
+            <div class="chart-card"><div class="chart-card__head"><h3>This week</h3></div><div id="weeklyBarChart" class="bar-chart"></div></div>
+            <div class="chart-card"><div class="chart-card__head"><h3>Priority breakdown</h3></div><div id="priorityBars"></div></div>
+          </div>
+          <div>
+            <div class="chart-card"><div class="chart-card__head"><h3>By category</h3></div><div id="categoryDonutWrap" class="donut-wrap"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-notes" class="view" hidden data-print-title="Notes">
+        <div class="view-header">
+          <div><h1>Notes</h1><p>Write freely, format your thoughts.</p></div>
+          <button id="notesAddBtn" class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Add note</button>
+        </div>
+        <div class="notes-mobile-bar">
+          <button id="notesBackBtn"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> All notes</button>
+        </div>
+        <div id="notesContainer" class="notes-layout">
+          <div id="notesList" class="notes-list"></div>
+          <div id="notesEditor" class="notes-editor"></div>
+          <div id="notesEmpty" class="notes-empty">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v2l-4 4 4 4v2H6v-2l4-4-4-4V4z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h3>No notes yet</h3>
+            <p>Tap the Add note button to create your first note.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-tables" class="view" hidden data-print-title="Tables">
+        <div class="view-header">
+          <div><h1>Tables</h1><p>Organize data in editable tables.</p></div>
+          <button id="tablesAddBtn" class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Add table</button>
+        </div>
+        <div class="tables-mobile-bar">
+          <button id="tablesBackBtn"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> All tables</button>
+        </div>
+        <div id="tablesContainer" class="tables-layout">
+          <div id="tablesList" class="tables-list"></div>
+          <div id="tablesEditor" class="tables-editor"></div>
+          <div id="tablesEmpty" class="tables-empty">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.8"/></svg>
+            <h3>No tables yet</h3>
+            <p>Tap the Add table button to create your first table.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-focus" class="view" hidden data-print-title="Focus timer">
+        <div class="view-header">
+          <div><h1>Focus timer</h1><p>Deep work, then a proper break.</p></div>
+          <button id="focusFullscreenBtn" class="btn btn-secondary btn-sm">Distraction-free</button>
+        </div>
+        <div class="focus-layout">
+          <div class="focus-mode-tabs" id="focusSessionDots" style="display:flex;"></div>
+          <div id="focusRingWrap" class="focus-ring-wrap">
+            <svg viewBox="0 0 200 200">
+              <circle id="focusRingTrack" class="focus-ring-track" cx="100" cy="100" r="90"/>
+              <circle id="focusRingProgress" class="focus-ring-progress" cx="100" cy="100" r="90"/>
+            </svg>
+            <div class="focus-ring-center">
+              <div id="timerDigits" class="timer-digits num">25:00</div>
+              <div id="timerLabel" class="timer-label">Focus</div>
+            </div>
+          </div>
+          <div class="focus-controls">
+            <button id="timerResetBtn" class="btn-icon" aria-label="Reset timer"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0114-5.3M20 12a8 8 0 01-14 5.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button id="timerToggleBtn" class="btn-icon btn-icon--primary" aria-label="Start timer"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <button id="timerSkipBtn" class="btn-icon" aria-label="Skip to next"><svg viewBox="0 0 24 24" fill="none"><path d="M6 5l10 7-10 7V5zM18 5v14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button>
+          </div>
+          <select id="focusTaskLinkSelect" class="select-native" aria-label="Link focus session to a task" style="max-width:280px;"></select>
+          <p id="focusCurrentTask" class="focus-current-task"></p>
+          <div class="focus-stats-grid">
+            <div class="focus-stat"><div id="focusStatToday" class="num">0m</div><div class="label">TODAY</div></div>
+            <div class="focus-stat"><div id="focusStatWeek" class="num">0m</div><div class="label">THIS WEEK</div></div>
+            <div class="focus-stat"><div id="focusStatMonth" class="num">0m</div><div class="label">THIS MONTH</div></div>
+          </div>
+
+          <div class="focus-daily-goal">
+            <div class="focus-daily-goal__header">
+              <span>Today's focus goal</span>
+              <span id="focusDailyGoalText" class="num">0m / 2h</span>
+            </div>
+            <div class="focus-daily-goal__track">
+              <div id="focusDailyGoalFill" class="focus-daily-goal__fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div id="focusRecentSessions" class="focus-recent-sessions">
+            <div class="focus-recent-sessions__title">Recent sessions</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-tabbar" aria-label="Primary">
+    <div class="mobile-tabbar__list">
+      <button class="mobile-tabbar__btn is-active" data-view="tasks"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6h11M9 12h11M9 18h11M5 6h.01M5 12h.01M5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tasks</button>
+      <button class="mobile-tabbar__btn" data-view="calendar"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg>Calendar</button>
+      <button class="mobile-tabbar__btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v2l-4 4 4 4v2H6v-2l4-4-4-4V4z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Notes</button>
+      <button class="mobile-tabbar__btn" data-view="tables"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.8"/></svg>Tables</button>
+      <button class="mobile-tabbar__btn" data-view="focus"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Focus</button>
+      <button class="mobile-tabbar__btn" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Stats</button>
+    </div>
+  </nav>
+</div>
+
+<button id="addTaskFab" class="btn btn-primary fab" aria-label="Add task">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+</button>
+
+<!-- ============ Task add/edit modal ============ -->
+<div id="taskModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+    <div class="modal__handle"></div>
+    <div class="modal__header">
+      <h2 id="taskModalTitle">New task</h2>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <button id="taskGoNoteBtn" class="btn btn-ghost btn-sm" hidden title="Go to linked note" style="gap:4px;"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6v6M10 14l10-10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Note</button>
+        <button id="taskPreviewBtn" class="btn btn-ghost btn-sm" title="Preview task" style="gap:4px;"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M4 12s1.5-6 8-6 8 6 8 6-1.5 6-8 6-8-6-8-6z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg> Preview</button>
+        <button id="taskModalCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+    <div class="modal__body">
+      <div class="task-preview-panel" id="taskPreviewPanel" hidden>
+        <div class="task-preview-panel__header">
+          <span class="task-preview-panel__title" id="taskPreviewPanelTitle"></span>
+          <button type="button" class="btn btn-ghost btn-sm" id="taskPreviewBackBtn" style="gap:4px;"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Back to edit</button>
+        </div>
+        <div class="task-preview-panel__body" id="taskPreviewPanelBody"></div>
+      </div>
+      <div class="task-modal-fields" id="taskModalFields">
+      <div class="field">
+        <label for="taskTitleInput">Title</label>
+        <input id="taskTitleInput" class="input" type="text" placeholder="What needs doing?">
+      </div>
+      <div class="field">
+        <label for="taskDescInput">Description</label>
+        <textarea id="taskDescInput" class="textarea" placeholder="Optional short description" style="min-height:56px;"></textarea>
+      </div>
+      <div class="field">
+        <label>Priority</label>
+        <div class="priority-picker">
+          <button type="button" class="priority-pill" data-p="low">Low</button>
+          <button type="button" class="priority-pill is-selected" data-p="medium">Medium</button>
+          <button type="button" class="priority-pill" data-p="high">High</button>
+          <button type="button" class="priority-pill" data-p="urgent">Urgent</button>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="taskDueDateInput">Due date</label><input id="taskDueDateInput" class="input" type="date"></div>
+        <div class="field"><label for="taskDueTimeInput">Due time</label><input id="taskDueTimeInput" class="input" type="time"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="taskCategorySelect">Category</label><select id="taskCategorySelect" class="select"></select></div>
+        <div class="field"><label for="taskDurationInput">Est. duration (min)</label><input id="taskDurationInput" class="input" type="number" min="0" step="5" placeholder="30"></div>
+      </div>
+      <div class="field">
+        <label for="taskTagsInput">Tags <span class="text-tertiary">(comma separated)</span></label>
+        <input id="taskTagsInput" class="input" type="text" placeholder="urgent, client-x">
+      </div>
+      <div class="field">
+        <label for="taskProgressInput">Progress <span id="taskProgressValue" class="num">0%</span></label>
+        <input id="taskProgressInput" type="range" min="0" max="100" step="5" value="0">
+      </div>
+      <div class="field">
+        <label>Color tag <span class="text-tertiary">(overrides priority color on the card)</span></label>
+        <div class="swatch-row">
+          <button type="button" class="swatch is-selected" data-color="" aria-label="No color" style="background:var(--color-surface-sunken);border:1px solid var(--color-border-strong);"></button>
+          <button type="button" class="swatch" data-color="#5b5fef" aria-label="Indigo" style="background:#5b5fef;"></button>
+          <button type="button" class="swatch" data-color="#3b82f6" aria-label="Blue" style="background:#3b82f6;"></button>
+          <button type="button" class="swatch" data-color="#10b981" aria-label="Emerald" style="background:#10b981;"></button>
+          <button type="button" class="swatch" data-color="#f59e0b" aria-label="Amber" style="background:#f59e0b;"></button>
+          <button type="button" class="swatch" data-color="#f43f5e" aria-label="Rose" style="background:#f43f5e;"></button>
+          <button type="button" class="swatch" data-color="#8b5cf6" aria-label="Violet" style="background:#8b5cf6;"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="taskDependsSelect">Depends on <span class="text-tertiary">(blocks nothing yet, just tracked)</span></label>
+        <select id="taskDependsSelect" class="select"></select>
+      </div>
+      <div class="field">
+        <label for="taskRecurrenceSelect">Repeat</label>
+        <select id="taskRecurrenceSelect" class="select">
+          <option value="none">Does not repeat</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="custom">Custom days</option>
+        </select>
+        <div id="taskRecurrenceCustomDays" class="flex-row" hidden style="flex-wrap:wrap;margin-top:10px;gap:12px;">
+          <label class="checkbox-row"><input type="checkbox" value="1">Mon</label>
+          <label class="checkbox-row"><input type="checkbox" value="2">Tue</label>
+          <label class="checkbox-row"><input type="checkbox" value="3">Wed</label>
+          <label class="checkbox-row"><input type="checkbox" value="4">Thu</label>
+          <label class="checkbox-row"><input type="checkbox" value="5">Fri</label>
+          <label class="checkbox-row"><input type="checkbox" value="6">Sat</label>
+          <label class="checkbox-row"><input type="checkbox" value="0">Sun</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Subtasks</label>
+        <div id="subtaskList" class="subtask-list"></div>
+        <button type="button" id="addSubtaskBtn" class="btn btn-secondary btn-sm" style="margin-top:8px;align-self:flex-start;">+ Add subtask</button>
+      </div>
+      <div class="field">
+        <label for="taskNotesInput">Notes <span class="text-tertiary">(markdown: **bold**, *italic*, links, - lists)</span></label>
+        <textarea id="taskNotesInput" class="textarea" placeholder="Longer notes go here…"></textarea>
+      </div>
+      <div class="field">
+        <label>Linked notes</label>
+        <div id="taskLinkedNotesList" class="linked-items"></div>
+        <div class="flex-row" style="gap:6px;margin-top:6px;">
+          <select id="taskLinkNoteSelect" class="select" style="flex:1;"><option value="">Link a note…</option></select>
+          <button id="taskLinkNoteBtn" type="button" class="btn btn-secondary btn-sm">Link</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Attachments <span class="text-tertiary">(images or PDF, up to 3MB each)</span></label>
+        <input id="attachmentFileInput" type="file" multiple accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,application/pdf" hidden>
+        <div id="attachmentGrid" class="attachment-grid"></div>
+      </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+          <button id="taskDeleteBtn" class="btn btn-danger modal__footer-left" hidden>Delete</button>
+          <button id="taskArchiveBtn" class="btn btn-ghost modal__footer-left" hidden>Archive</button>
+          <button id="taskTemplateBtn" class="btn btn-ghost">Save as template</button>
+          <button id="taskCancelBtn" class="btn btn-secondary">Cancel</button>
+          <button id="taskSaveBtn" class="btn btn-primary">Save task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Attachment preview modal ============ -->
+<div id="attachmentPreviewModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="attachmentPreviewTitle">
+    <div class="modal__header">
+      <div><h2 id="attachmentPreviewTitle" style="font-size:15px;"></h2><p id="attachmentPreviewMeta" class="text-tertiary" style="font-size:12px;margin-top:2px;"></p></div>
+      <button id="attachmentPreviewCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+    </div>
+    <div id="attachmentPreviewBody" class="modal__body"></div>
+    <div class="modal__footer">
+      <a id="attachmentDownloadBtn" class="btn btn-secondary" download>Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Create table modal ============ -->
+<div id="createTableModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="createTableTitle">
+    <div class="modal__header">
+      <h2 id="createTableTitle">Create table</h2>
+      <button id="createTableCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="create-table-form">
+        <div class="field">
+          <label for="createTableNameInput">Table name</label>
+          <input id="createTableNameInput" class="input" type="text" placeholder="My table">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="createTableRowsInput">Rows</label>
+            <input id="createTableRowsInput" class="input" type="number" min="1" max="50" value="3">
+          </div>
+          <div class="field">
+            <label for="createTableColsInput">Columns</label>
+            <input id="createTableColsInput" class="input" type="number" min="1" max="20" value="3">
+          </div>
+        </div>
+        <div id="createTablePreview" class="create-table-preview"></div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button id="createTableCancelBtn" class="btn btn-secondary">Cancel</button>
+      <button id="createTableConfirmBtn" class="btn btn-primary">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Settings modal ============ -->
+<div id="settingsModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitleText">
+    <div class="modal__header"><h2 id="settingsModalTitleText">Settings</h2><button id="settingsModalCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div class="modal__body">
+      <div class="field"><label>Theme</label>
+        <div class="tabs">
+          <button type="button" class="tab-btn theme-option" data-theme="light">Light</button>
+          <button type="button" class="tab-btn theme-option" data-theme="dark">Dark</button>
+          <button type="button" class="tab-btn theme-option is-active" data-theme="auto">Auto</button>
+        </div>
+      </div>
+      <div class="field"><label>Accent color</label>
+        <div class="swatch-row">
+          <button type="button" class="swatch is-selected" data-accent="indigo" aria-label="Indigo" style="background:#5b5fef;"></button>
+          <button type="button" class="swatch" data-accent="blue" aria-label="Blue" style="background:#3b82f6;"></button>
+          <button type="button" class="swatch" data-accent="emerald" aria-label="Emerald" style="background:#10b981;"></button>
+          <button type="button" class="swatch" data-accent="rose" aria-label="Rose" style="background:#f43f5e;"></button>
+          <button type="button" class="swatch" data-accent="amber" aria-label="Amber" style="background:#e08a1e;"></button>
+          <button type="button" class="swatch" data-accent="teal" aria-label="Teal" style="background:#14b8a6;"></button>
+          <button type="button" class="swatch" data-accent="violet" aria-label="Violet" style="background:#8b5cf6;"></button>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Text size</label><div class="tabs">
+          <button type="button" class="tab-btn fontsize-option" data-size="sm">Small</button>
+          <button type="button" class="tab-btn fontsize-option is-active" data-size="md">Medium</button>
+          <button type="button" class="tab-btn fontsize-option" data-size="lg">Large</button>
+        </div></div>
+        <div class="field"><label>Density</label><div class="tabs">
+          <button type="button" class="tab-btn density-option is-active" data-density="comfortable">Comfortable</button>
+          <button type="button" class="tab-btn density-option" data-density="compact">Compact</button>
+        </div></div>
+      </div>
+      <div class="checkbox-row"><label class="switch"><input type="checkbox" id="highContrastToggle"><span class="track"></span><span class="thumb"></span></label>High contrast</div>
+      <div class="checkbox-row"><label class="switch"><input type="checkbox" id="reducedMotionToggle"><span class="track"></span><span class="thumb"></span></label>Reduce motion</div>
+      <div class="checkbox-row"><label class="switch"><input type="checkbox" id="weekStartsMondayToggle" checked><span class="track"></span><span class="thumb"></span></label>Week starts on Monday</div>
+      <div class="field"><label for="groupBySelectSettings">Default grouping</label><select id="groupBySelectSettings" class="select"><option value="date">By date</option><option value="category">By category</option></select></div>
+
+      <hr class="divider">
+      <h3 style="font-size:14px;margin-bottom:4px;">Sound</h3>
+      <div class="checkbox-row"><label class="switch"><input type="checkbox" id="soundsEnabledToggle" checked><span class="track"></span><span class="thumb"></span></label>Sound effects</div>
+      <div class="field"><label for="soundVolumeInput">Volume</label><input id="soundVolumeInput" type="range" min="0" max="1" step="0.05" value="0.5"></div>
+      <button id="soundTestBtn" type="button" class="btn btn-secondary btn-sm" style="align-self:flex-start;">Test sound</button>
+
+      <hr class="divider">
+      <h3 style="font-size:14px;margin-bottom:4px;">Notifications</h3>
+      <div class="flex-row" style="justify-content:space-between;"><span class="text-secondary" style="font-size:13px;">Browser permission</span><span id="notifPermissionBadge" class="badge badge-warning">Not enabled</span></div>
+      <div class="checkbox-row"><label class="switch"><input type="checkbox" id="notifEnableToggle"><span class="track"></span><span class="thumb"></span></label>Enable due-task reminders</div>
+      <div class="field-row">
+        <div class="field"><label for="reminderMinutesSelect">Remind before due</label><select id="reminderMinutesSelect" class="select"><option value="5">5 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hour</option></select></div>
+        <div class="field"><label for="dailyReminderTimeInput">Daily planning reminder</label><input id="dailyReminderTimeInput" type="time" class="input"></div>
+      </div>
+
+      <hr class="divider">
+      <h3 style="font-size:14px;margin-bottom:4px;">Focus timer</h3>
+      <div class="field-row">
+        <div class="field"><label for="pomodoroFocusMinInput">Focus (min)</label><input id="pomodoroFocusMinInput" type="number" class="input" min="1"></div>
+        <div class="field"><label for="pomodoroShortMinInput">Short break (min)</label><input id="pomodoroShortMinInput" type="number" class="input" min="1"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="pomodoroLongMinInput">Long break (min)</label><input id="pomodoroLongMinInput" type="number" class="input" min="1"></div>
+        <div class="field"><label for="pomodoroSessionsInput">Sessions before long break</label><input id="pomodoroSessionsInput" type="number" class="input" min="1"></div>
+      </div>
+      <div class="checkbox-row"><label class="switch"><input type="checkbox" id="pomodoroAutoStartInput"><span class="track"></span><span class="thumb"></span></label>Auto-start next session</div>
+      <div class="field"><label for="pomodoroGoalInput">Daily focus goal (min)</label><input id="pomodoroGoalInput" type="number" class="input" min="1"></div>
+      <button id="pomodoroSaveSettingsBtn" type="button" class="btn btn-secondary btn-sm" style="align-self:flex-start;">Save focus timer settings</button>
+
+      <hr class="divider">
+      <div class="flex-row" style="justify-content:space-between;"><h3 style="font-size:14px;">Categories</h3><button id="addCategoryBtn" type="button" class="btn btn-secondary btn-sm">+ Add</button></div>
+      <div id="categoryManagerList"></div>
+
+      <hr class="divider">
+      <h3 style="font-size:14px;margin-bottom:8px;">Import &amp; export</h3>
+      <div class="flex-row" style="flex-wrap:wrap;">
+        <button id="exportJsonBtn" type="button" class="btn btn-secondary btn-sm">Export JSON</button>
+        <button id="exportCsvBtn" type="button" class="btn btn-secondary btn-sm">Export CSV</button>
+        <button id="exportBackupBtn" type="button" class="btn btn-secondary btn-sm">Full backup</button>
+      </div>
+      <div class="flex-row" style="flex-wrap:wrap;margin-top:8px;">
+        <label class="btn btn-secondary btn-sm">Import JSON<input id="importJsonInput" type="file" accept=".json" hidden></label>
+        <label class="btn btn-secondary btn-sm">Import CSV<input id="importCsvInput" type="file" accept=".csv" hidden></label>
+        <label class="btn btn-secondary btn-sm">Restore backup<input id="restoreBackupInput" type="file" accept=".json" hidden></label>
+      </div>
+      <button id="clearTrashBtn" type="button" class="btn btn-danger btn-sm" style="margin-top:14px;align-self:flex-start;">Empty trash</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Help modal ============ -->
+<div id="helpModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="helpModalTitleText">
+    <div class="modal__header"><h2 id="helpModalTitleText">Help &amp; info</h2><button id="helpModalCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div class="modal__body">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab-btn is-active" data-tab="faq" role="tab">FAQ</button>
+        <button type="button" class="tab-btn" data-tab="shortcuts" role="tab">Shortcuts</button>
+        <button type="button" class="tab-btn" data-tab="about" role="tab">About</button>
+        <button type="button" class="tab-btn" data-tab="changelog" role="tab">Changelog</button>
+        <button type="button" class="tab-btn" data-tab="privacy" role="tab">Privacy</button>
+      </div>
+      <div id="faqPanel" class="tab-panel" data-tab="faq"></div>
+      <div id="shortcutsPanel" class="tab-panel" data-tab="shortcuts" hidden></div>
+      <div id="aboutPanel" class="tab-panel" data-tab="about" hidden></div>
+      <div id="changelogPanel" class="tab-panel" data-tab="changelog" hidden></div>
+      <div id="privacyPanel" class="tab-panel" data-tab="privacy" hidden></div>
+      <a id="feedbackLink" class="btn btn-secondary btn-sm" href="#" style="margin-top:6px;align-self:flex-start;">Send feedback</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Achievements modal ============ -->
+<div id="achievementsModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="achievementsTitleText">
+    <div class="modal__header">
+      <div><h2 id="achievementsTitleText">Achievements</h2><p id="achievementsCount" class="text-tertiary" style="font-size:12px;"></p></div>
+      <button id="achievementsModalCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="modal__body"><div id="achievementsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;"></div></div>
+  </div>
+</div>
+
+<!-- ============ Share modal ============ -->
+<div id="shareModal" class="modal-overlay" aria-hidden="true">
+  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="shareTitleText">
+    <div class="modal__header"><h2 id="shareTitleText">Share Flow</h2><button id="shareModalCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div class="modal__body" style="align-items:center;text-align:center;">
+      <div id="qrCodeWrap" style="width:180px;height:180px;margin:0 auto;"></div>
+      <p id="shareUrlText" class="text-secondary" style="font-size:12px;word-break:break-all;"></p>
+      <div class="flex-row" style="justify-content:center;flex-wrap:wrap;">
+        <button id="copyLinkBtn" type="button" class="btn btn-secondary btn-sm">Copy link</button>
+        <button id="nativeShareBtn" type="button" class="btn btn-secondary btn-sm">Share…</button>
+        <button id="downloadQrBtn" type="button" class="btn btn-secondary btn-sm">Download QR</button>
+        <button id="printQrBtn" type="button" class="btn btn-secondary btn-sm">Print QR</button>
+      </div>
+      <div class="flex-row" style="justify-content:center;margin-top:4px;">
+        <button type="button" class="btn-icon" data-social="x" aria-label="Share on X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4l7.5 9.6L4.3 20H7l5.8-5.5L17.5 20H21l-8-10.2L20 4h-2.7l-5.3 5L7.5 4H4z"/></svg></button>
+        <button type="button" class="btn-icon" data-social="facebook" aria-label="Share on Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.25-1.5 1.55-1.5H17V3.7C16.7 3.65 15.7 3.5 14.5 3.5c-2.4 0-4 1.45-4 4.2v2.2H7.8v3.1h2.7v8h3z"/></svg></button>
+        <button type="button" class="btn-icon" data-social="linkedin" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.9 8.4H3.7V20h3.2V8.4zM5.3 3.5a1.9 1.9 0 100 3.7 1.9 1.9 0 000-3.7zM20.3 20h-3.2v-6c0-1.4 0-3.3-2-3.3s-2.3 1.6-2.3 3.2V20H9.6V8.4h3v1.6h.05c.4-.8 1.5-1.7 3.1-1.7 3.3 0 3.9 2.2 3.9 5V20z"/></svg></button>
+        <button type="button" class="btn-icon" data-social="whatsapp" aria-label="Share on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.3A9 9 0 1012 3zm0 1.8a7.2 7.2 0 013.9 13.2l-.3.2.1 2-2.1-.6-.3.1a7.2 7.2 0 01-1.3.1A7.2 7.2 0 1112 4.8zm-3.3 3.6c-.2 0-.5.1-.7.4-.2.2-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.7 4.3 3.7 2.1.9 2.5.7 3 .6.4-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.5-.3l-1.8-.9c-.2-.1-.4-.1-.6.1l-.7.9c-.1.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.4.1-.6l.4-.5c.1-.2.2-.3.2-.5.1-.2 0-.4 0-.5-.1-.1-.6-1.5-.9-2-.2-.5-.4-.4-.6-.4h-.4z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Command palette ============ -->
+<div id="commandPalette" class="palette-overlay" aria-hidden="true">
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="palette__input-row">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input id="paletteInput" type="text" placeholder="Type a command or search…" aria-label="Command palette input" autocomplete="off">
+    </div>
+    <div id="paletteList" class="palette-list" role="listbox" aria-label="Commands"></div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<noscript><div style="padding:40px;text-align:center;font-family:sans-serif;">Flow needs JavaScript enabled to run — please enable it in your browser settings.</div></noscript>
+
+<script src="js/utils/helpers.js" defer></script>
+<script src="js/utils/date-utils.js" defer></script>
+<script src="js/utils/storage.js" defer></script>
+<script src="js/utils/csv.js" defer></script>
+<script src="js/utils/qrcode.js" defer></script>
+<script src="js/state/store.js" defer></script>
+<script src="js/features/theme.js" defer></script>
+<script src="js/features/sounds.js" defer></script>
+<script src="js/features/toast.js" defer></script>
+<script src="js/features/tasks.js" defer></script>
+<script src="js/features/task-modal.js" defer></script>
+<script src="js/features/filters.js" defer></script>
+<script src="js/features/dragdrop.js" defer></script>
+<script src="js/features/calendar.js" defer></script>
+<script src="js/features/pomodoro.js" defer></script>
+<script src="js/features/dashboard.js" defer></script>
+<script src="js/features/quotes-data.js" defer></script>
+<script src="js/features/quotes.js" defer></script>
+<script src="js/features/notifications.js" defer></script>
+<script src="js/features/shortcuts.js" defer></script>
+<script src="js/features/import-export.js" defer></script>
+<script src="js/features/share.js" defer></script>
+<script src="js/features/print.js" defer></script>
+<script src="js/features/achievements.js" defer></script>
+<script src="js/features/notes.js" defer></script>
+<script src="js/features/tables.js" defer></script>
+<script src="js/features/onboarding.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>

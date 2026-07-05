@@ -1,0 +1,24 @@
+@media print {
+  .app-header, .app-sidebar, .mobile-tabbar, .sidebar-scrim, .quick-add, .toolbar,
+  .task-item__actions, .task-item__drag-handle, .bulk-bar, .modal-overlay, .palette-overlay,
+  .toast-container, .confetti-layer, .skip-link, .fab, .no-print { display: none !important; }
+
+  body { background: #fff; color: #000; }
+  .app-main { padding: 0; overflow: visible; }
+  .view { max-width: none; animation: none; }
+
+  .print-header { display: block !important; margin-bottom: 16pt; border-bottom: 2pt solid #000; padding-bottom: 8pt; }
+  .print-header h1 { font-size: 18pt; }
+  .print-header .meta { font-size: 9pt; color: #444; margin-top: 4pt; }
+
+  .task-item { border: none !important; border-bottom: 0.75pt solid #ccc !important; border-radius: 0 !important; page-break-inside: avoid; box-shadow: none !important; padding: 6pt 0; }
+  .task-checkbox { border: 1.25pt solid #000 !important; background: none !important; }
+  .task-item.is-complete .task-checkbox { background: #000 !important; }
+  .task-group__title { border-bottom: 1pt solid #000; padding-bottom: 3pt; }
+  .task-item__desc { -webkit-line-clamp: unset; }
+
+  a[href]::after { content: none; }
+  * { box-shadow: none !important; text-shadow: none !important; }
+}
+
+.print-header { display: none; }
