@@ -13,7 +13,9 @@
   const RING_RADIUS = 90;
   const CIRC = 2 * Math.PI * RING_RADIUS;
 
-  let phase = 'focus'; // focus | short | long
+  let phase = 'focus'; // focus | short | long | custom
+
+  const SKIP_CYCLE = ['focus', 'short', 'long', 'custom'];
   let secondsLeft = 0;
   let totalSeconds = 0;
   let running = false;
@@ -26,7 +28,7 @@
 
   function durationFor(p) {
     const s = settings();
-    return { focus: s.focusMin, short: s.shortBreakMin, long: s.longBreakMin }[p] * 60;
+    return { focus: s.focusMin, short: s.shortBreakMin, long: s.longBreakMin, custom: s.customMin || 30 }[p] * 60;
   }
 
   function reset(newPhase) {
@@ -78,9 +80,15 @@
       notifyFinished('Break\u2019s over', 'Ready for another focus session?');
     }
 
-    const nextPhase = phase === 'focus'
-      ? (completedFocusSessions % settings().sessionsBeforeLongBreak === 0 ? 'long' : 'short')
-      : 'focus';
+    let nextPhase;
+    if (skipped) {
+      const idx = SKIP_CYCLE.indexOf(phase);
+      nextPhase = SKIP_CYCLE[(idx + 1) % SKIP_CYCLE.length];
+    } else if (phase === 'focus') {
+      nextPhase = (completedFocusSessions % settings().sessionsBeforeLongBreak === 0) ? 'long' : 'short';
+    } else {
+      nextPhase = 'focus';
+    }
     reset(nextPhase);
     renderSessionDots();
     renderRecentSessions();
@@ -111,8 +119,12 @@
     if (!digitsEl) return;
     const mm = Math.floor(secondsLeft / 60), ss = secondsLeft % 60;
     digitsEl.textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
-    $('#timerLabel').textContent = phase === 'focus' ? 'Focus' : phase === 'short' ? 'Short break' : 'Long break';
+    const labelMap = { focus: 'Focus', short: 'Short break', long: 'Long break', custom: 'Custom' };
+    $('#timerLabel').textContent = labelMap[phase] || 'Focus';
     $('#timerLabel').classList.toggle('is-break', phase !== 'focus');
+
+    const infoEl = $('#focusCustomInfo');
+    if (infoEl) infoEl.hidden = phase !== 'custom';
 
     const ring = $('#focusRingProgress');
     const progress = totalSeconds ? (totalSeconds - secondsLeft) / totalSeconds : 0;
@@ -221,6 +233,7 @@
     $('#pomodoroFocusMinInput').value = settings().focusMin;
     $('#pomodoroShortMinInput').value = settings().shortBreakMin;
     $('#pomodoroLongMinInput').value = settings().longBreakMin;
+    $('#pomodoroCustomMinInput').value = settings().customMin || 30;
     $('#pomodoroSessionsInput').value = settings().sessionsBeforeLongBreak;
     $('#pomodoroAutoStartInput').checked = settings().autoStartNext;
     $('#pomodoroGoalInput').value = settings().dailyGoalMin || 120;
@@ -232,6 +245,7 @@
         focusMin: Number($('#pomodoroFocusMinInput').value) || 25,
         shortBreakMin: Number($('#pomodoroShortMinInput').value) || 5,
         longBreakMin: Number($('#pomodoroLongMinInput').value) || 15,
+        customMin: Number($('#pomodoroCustomMinInput').value) || 30,
         sessionsBeforeLongBreak: Number($('#pomodoroSessionsInput').value) || 4,
         autoStartNext: $('#pomodoroAutoStartInput').checked,
         soundOnFinish: true,
@@ -246,6 +260,15 @@
   function toggleFullscreenFocus() {
     const isFs = document.documentElement.getAttribute('data-focus-mode') === 'fullscreen';
     document.documentElement.setAttribute('data-focus-mode', isFs ? 'normal' : 'fullscreen');
+  }
+
+  function renderClock() {
+    const timeEl = $('#focusClockTime');
+    const dateEl = $('#focusClockDate');
+    if (!timeEl || !dateEl) return;
+    const now = new Date();
+    timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   }
 
   function init() {
@@ -264,13 +287,18 @@
     $('#focusFullscreenBtn').addEventListener('click', toggleFullscreenFocus);
     $('#focusTaskLinkSelect').addEventListener('change', (e) => { linkedTaskId = e.target.value || null; render(); });
     $('#pomodoroSaveSettingsBtn').addEventListener('click', saveSettingsPanel);
+    const settingsLink = $('#focusCustomSettingsLink');
+    if (settingsLink) settingsLink.addEventListener('click', () => { const btn = $('#settingsTriggerBtn'); if (btn) btn.click(); });
     App.Store.on('tasks:changed', populateTaskLinkSelect);
     App.Store.on('settings:changed', () => { renderStats(); renderDailyGoal(); });
     App.Store.on('tasks:changed', () => renderRecentSessions());
     populateTaskLinkSelect();
     renderStats();
+    renderClock();
+    setInterval(renderClock, 1000);
+    if (App.FocusSticky) App.FocusSticky.init();
   }
 
-  App.Pomodoro = { init, start, pause, toggle, skip, reset, renderStats, openSettingsPanel, renderRecentSessions, renderDailyGoal };
+  App.Pomodoro = { init, start, pause, toggle, skip, reset, renderStats, openSettingsPanel, renderRecentSessions, renderDailyGoal, renderClock };
 })();
 

@@ -4,24 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Flow — Free Task Manager, Calendar &amp; Focus Timer (PWA)</title>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z2JH3CLNS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8Z2JH3CLNS');
+</script>
 <meta name="description" content="Flow is a free, fast, offline-first to-do list with calendar, Pomodoro focus timer, and productivity analytics. No sign-up, no ads, no tracking — runs entirely in your browser.">
 <meta name="keywords" content="to-do list, task manager, productivity app, PWA, offline todo app, calendar app, pomodoro timer, free todo list, task tracker">
 <meta name="author" content="Flow">
 <meta name="robots" content="index, follow">
 <meta name="color-scheme" content="light dark">
 
-<!-- Update these three to your real GitHub Pages URL after deploying -->
-<link rel="canonical" href="https://your-username.github.io/flow-todo-app/">
+<link rel="canonical" href="https://joudlight.github.io/TaskFlow/">
+
+<meta property="og:locale" content="en_US">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Flow — Free Task Manager, Calendar &amp; Focus Timer">
-<meta property="og:description" content="A free, offline-first to-do list with calendar, focus timer, and analytics. No sign-up, no ads.">
-<meta property="og:image" content="https://your-username.github.io/flow-todo-app/icons/og-image.png">
-<meta property="og:url" content="https://your-username.github.io/flow-todo-app/">
-<meta property="og:site_name" content="Flow">
+<meta property="og:description" content="A free, offline-first to-do list with calendar, focus timer, and analytics. No sign-up, no ads, no tracking.">
+<meta property="og:image" content="https://joudlight.github.io/TaskFlow/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://joudlight.github.io/TaskFlow/">
+<meta property="og:site_name" content="TaskFlow">
+
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Flow — Free Task Manager, Calendar &amp; Focus Timer">
 <meta name="twitter:description" content="A free, offline-first to-do list with calendar, focus timer, and analytics. No sign-up, no ads.">
-<meta name="twitter:image" content="https://your-username.github.io/flow-todo-app/icons/og-image.png">
+<meta name="twitter:image" content="https://joudlight.github.io/TaskFlow/preview.png">
 
 <meta name="theme-color" content="#fafaf9">
 <link rel="manifest" href="manifest.json">
@@ -126,6 +139,7 @@
   <div class="app-body">
     <div id="sidebarScrim" class="sidebar-scrim"></div>
     <aside id="appSidebar" class="app-sidebar" aria-label="Main navigation">
+      <div class="sidebar-scroll">
       <div>
         <div class="sidebar-section__title">Views</div>
         <nav class="sidebar-nav">
@@ -154,13 +168,16 @@
         <nav id="sidebarCategoryList" class="sidebar-nav"></nav>
         <button id="sidebarAddCategoryBtn" class="sidebar-link sidebar-link--add" style="font-size:12px;gap:4px;justify-content:center;" type="button">+ Add category</button>
       </div>
-      <div class="sidebar-datetime">
-        <div class="sidebar-datetime__time" id="sidebarClock">00:00</div>
-        <div class="sidebar-datetime__date" id="sidebarDate">Loading…</div>
-      </div>
-      <div class="sidebar-storage">
-        <div id="sidebarStorageLabel">0 KB used locally</div>
-        <div class="sidebar-storage__bar"><span id="sidebarStorageBar" style="width:0%"></span></div>
+      </div><!-- /sidebar-scroll -->
+      <div class="sidebar-sticky">
+        <div class="sidebar-datetime">
+          <div class="sidebar-datetime__time" id="sidebarClock">00:00</div>
+          <div class="sidebar-datetime__date" id="sidebarDate">Loading…</div>
+        </div>
+        <div class="sidebar-storage">
+          <div id="sidebarStorageLabel">0 KB used locally</div>
+          <div class="sidebar-storage__bar"><span id="sidebarStorageBar" style="width:0%"></span></div>
+        </div>
       </div>
     </aside>
 
@@ -292,7 +309,10 @@
       <section id="view-focus" class="view" hidden data-print-title="Focus timer">
         <div class="view-header">
           <div><h1>Focus timer</h1><p>Deep work, then a proper break.</p></div>
-          <button id="focusFullscreenBtn" class="btn btn-secondary btn-sm">Distraction-free</button>
+          <div class="flex-row">
+            <button id="focusStickyAddBtn" class="btn btn-secondary btn-sm">Add sticky note</button>
+            <button id="focusFullscreenBtn" class="btn btn-secondary btn-sm">Distraction-free</button>
+          </div>
         </div>
         <div class="focus-layout">
           <div class="focus-mode-tabs" id="focusSessionDots" style="display:flex;"></div>
@@ -310,6 +330,10 @@
             <button id="timerResetBtn" class="btn-icon" aria-label="Reset timer"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0114-5.3M20 12a8 8 0 01-14 5.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <button id="timerToggleBtn" class="btn-icon btn-icon--primary" aria-label="Start timer"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
             <button id="timerSkipBtn" class="btn-icon" aria-label="Skip to next"><svg viewBox="0 0 24 24" fill="none"><path d="M6 5l10 7-10 7V5zM18 5v14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button>
+          </div>
+          <div class="focus-clock">
+            <div class="focus-clock__time" id="focusClockTime">00:00:00</div>
+            <div class="focus-clock__date" id="focusClockDate">Loading…</div>
           </div>
           <select id="focusTaskLinkSelect" class="select-native" aria-label="Link focus session to a task" style="max-width:280px;"></select>
           <p id="focusCurrentTask" class="focus-current-task"></p>
@@ -329,9 +353,13 @@
             </div>
           </div>
 
+          <div class="focus-custom-info" id="focusCustomInfo" hidden>Custom timer duration can be changed in <button class="btn-link" id="focusCustomSettingsLink">Settings</button>.</div>
+
           <div id="focusRecentSessions" class="focus-recent-sessions">
             <div class="focus-recent-sessions__title">Recent sessions</div>
           </div>
+
+          <div id="focusStickyNotes" class="focus-sticky-notes"></div>
         </div>
       </section>
     </main>
@@ -585,7 +613,11 @@
       </div>
       <div class="field-row">
         <div class="field"><label for="pomodoroLongMinInput">Long break (min)</label><input id="pomodoroLongMinInput" type="number" class="input" min="1"></div>
+        <div class="field"><label for="pomodoroCustomMinInput">Custom timer (min) <span class="text-tertiary">(4th option in the skip cycle)</span></label><input id="pomodoroCustomMinInput" type="number" class="input" min="1"></div>
+      </div>
+      <div class="field-row">
         <div class="field"><label for="pomodoroSessionsInput">Sessions before long break</label><input id="pomodoroSessionsInput" type="number" class="input" min="1"></div>
+        <div class="field"></div>
       </div>
       <div class="checkbox-row"><label class="switch"><input type="checkbox" id="pomodoroAutoStartInput"><span class="track"></span><span class="thumb"></span></label>Auto-start next session</div>
       <div class="field"><label for="pomodoroGoalInput">Daily focus goal (min)</label><input id="pomodoroGoalInput" type="number" class="input" min="1"></div>
@@ -709,6 +741,7 @@
 <script src="js/features/achievements.js" defer></script>
 <script src="js/features/notes.js" defer></script>
 <script src="js/features/tables.js" defer></script>
+<script src="js/features/focus-sticky.js" defer></script>
 <script src="js/features/onboarding.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>

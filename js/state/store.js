@@ -36,6 +36,7 @@
     quoteFavorites: [],
     notes: [],
     tables: [],
+    focusStickyNotes: [],
     settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
     streak: { current: 0, longest: 0, lastCompletionDate: null },
   };
@@ -50,7 +51,7 @@
       tasks: state.tasks, trash: state.trash, templates: state.templates, categories: state.categories,
       pomodoroSessions: state.pomodoroSessions, achievementsUnlocked: state.achievementsUnlocked,
       activityLog: state.activityLog.slice(0, 200), quoteFavorites: state.quoteFavorites,
-      notes: state.notes, tables: state.tables,
+      notes: state.notes, tables: state.tables, focusStickyNotes: state.focusStickyNotes,
       settings: state.settings, streak: state.streak,
     });
   }, 300);
@@ -71,6 +72,7 @@
         quoteFavorites: saved.quoteFavorites || [],
         notes: saved.notes || [],
         tables: saved.tables || [],
+        focusStickyNotes: saved.focusStickyNotes || [],
         settings: Object.assign({}, DEFAULT_SETTINGS, saved.settings, {
           pomodoro: Object.assign({}, DEFAULT_SETTINGS.pomodoro, (saved.settings || {}).pomodoro),
         }),
@@ -473,6 +475,28 @@
     emit('notes:changed', { type: 'update', note: note });
   }
 
+  // ---------------- Focus Sticky Notes CRUD ----------------
+  function addFocusStickyNote(data) {
+    const note = { id: uuid(), content: data.content || '', color: data.color || '#fef3c7', x: data.x || 20, y: data.y || 20, pinned: data.pinned || false, createdAt: new Date().toISOString() };
+    state.focusStickyNotes.unshift(note);
+    save();
+    emit('focusStickyNotes:changed');
+    return note;
+  }
+  function updateFocusStickyNote(id, patch) {
+    const note = state.focusStickyNotes.find((n) => n.id === id);
+    if (!note) return null;
+    Object.assign(note, patch);
+    save();
+    emit('focusStickyNotes:changed');
+    return note;
+  }
+  function deleteFocusStickyNote(id) {
+    state.focusStickyNotes = state.focusStickyNotes.filter((n) => n.id !== id);
+    save();
+    emit('focusStickyNotes:changed');
+  }
+
   App.Store = {
     state, on, off, emit, init, save, makeTask,
     addTask, getTask, updateTask, toggleComplete, duplicateTask, archiveTask, restoreFromArchive, deleteTask, restoreTask,
@@ -480,6 +504,7 @@
     addCategory, updateCategory, deleteCategory, saveAsTemplate, createFromTemplate, deleteTemplate,
     addNote, getNote, updateNote, deleteNote,
     addTable, getTable, updateTable, deleteTable,
+    addFocusStickyNote, updateFocusStickyNote, deleteFocusStickyNote,
     logActivity, updateSettings, DEFAULT_SETTINGS,
     linkNoteToTask, unlinkNoteFromTask,
   };
