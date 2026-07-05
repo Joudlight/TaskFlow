@@ -263,30 +263,40 @@
   }
 
   function renderClock() {
-    const timeEl = $('#focusClockTime');
-    const dateEl = $('#focusClockDate');
-    if (!timeEl || !dateEl) return;
-    const now = new Date();
-    timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    try {
+      const timeEl = $('#focusClockTime');
+      const dateEl = $('#focusClockDate');
+      if (!timeEl || !dateEl) return;
+      const now = new Date();
+      timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      dateEl.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    } catch (_) { /* clock update failed, will retry next interval */ }
   }
 
   function init() {
     const svg = $('#focusRingWrap svg');
     if (svg) {
-      $('#focusRingTrack').setAttribute('r', RING_RADIUS);
-      $('#focusRingProgress').setAttribute('r', RING_RADIUS);
+      const track = $('#focusRingTrack');
+      if (track) track.setAttribute('r', RING_RADIUS);
+      const prog = $('#focusRingProgress');
+      if (prog) prog.setAttribute('r', RING_RADIUS);
     }
     reset('focus');
     renderSessionDots();
     renderDailyGoal();
     renderRecentSessions();
-    $('#timerToggleBtn').addEventListener('click', toggle);
-    $('#timerResetBtn').addEventListener('click', () => reset(phase));
-    $('#timerSkipBtn').addEventListener('click', skip);
-    $('#focusFullscreenBtn').addEventListener('click', toggleFullscreenFocus);
-    $('#focusTaskLinkSelect').addEventListener('change', (e) => { linkedTaskId = e.target.value || null; render(); });
-    $('#pomodoroSaveSettingsBtn').addEventListener('click', saveSettingsPanel);
+    const toggleBtn = $('#timerToggleBtn');
+    if (toggleBtn) toggleBtn.addEventListener('click', toggle);
+    const resetBtn = $('#timerResetBtn');
+    if (resetBtn) resetBtn.addEventListener('click', () => reset(phase));
+    const skipBtn = $('#timerSkipBtn');
+    if (skipBtn) skipBtn.addEventListener('click', skip);
+    const fsBtn = $('#focusFullscreenBtn');
+    if (fsBtn) fsBtn.addEventListener('click', toggleFullscreenFocus);
+    const taskLink = $('#focusTaskLinkSelect');
+    if (taskLink) taskLink.addEventListener('change', (e) => { linkedTaskId = e.target.value || null; render(); });
+    const saveBtn = $('#pomodoroSaveSettingsBtn');
+    if (saveBtn) saveBtn.addEventListener('click', saveSettingsPanel);
     const settingsLink = $('#focusCustomSettingsLink');
     if (settingsLink) settingsLink.addEventListener('click', () => { const btn = $('#settingsTriggerBtn'); if (btn) btn.click(); });
     App.Store.on('tasks:changed', populateTaskLinkSelect);
@@ -296,7 +306,21 @@
     renderStats();
     renderClock();
     setInterval(renderClock, 1000);
-    if (App.FocusSticky) App.FocusSticky.init();
+    if (App.FocusSticky) {
+      App.FocusSticky.init();
+    } else {
+      // Direct wiring fallback if focus-sticky.js didn't load
+      const stickyBtn = $('#focusStickyAddBtn');
+      if (stickyBtn) {
+        var notes = App.Store.state.focusStickyNotes || [];
+        if (notes.length) {
+          // Notes exist but module isn't loaded — for now just attach a basic handler
+        }
+        stickyBtn.addEventListener('click', function () {
+          var n = App.Store.addFocusStickyNote({ content: '', color: '#fef3c7', x: 60 + Math.random() * 80, y: 60 + Math.random() * 80 });
+        });
+      }
+    }
   }
 
   App.Pomodoro = { init, start, pause, toggle, skip, reset, renderStats, openSettingsPanel, renderRecentSessions, renderDailyGoal, renderClock };

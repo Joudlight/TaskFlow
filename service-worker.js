@@ -4,7 +4,7 @@
   a versioned static site: bump CACHE_VERSION when you ship changes), network-
   first-with-cache-fallback for navigations, and offline.html as a last resort.
 */
-const CACHE_VERSION = 'flow-v1';
+const CACHE_VERSION = 'flow-v2';
 const PRECACHE_URLS = [
   './',
   'index.html',
@@ -18,6 +18,8 @@ const PRECACHE_URLS = [
   'css/layout.css',
   'css/pomodoro.css',
   'css/print.css',
+  'css/notes.css',
+  'css/tables.css',
   'css/variables.css',
   'icons/apple-touch-icon.png',
   'icons/favicon.ico',
@@ -46,6 +48,9 @@ const PRECACHE_URLS = [
   'js/features/tasks.js',
   'js/features/theme.js',
   'js/features/toast.js',
+  'js/features/focus-sticky.js',
+  'js/features/notes.js',
+  'js/features/tables.js',
   'js/state/store.js',
   'js/utils/csv.js',
   'js/utils/date-utils.js',
@@ -83,7 +88,13 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
-        .then((res) => { caches.open(CACHE_VERSION).then((c) => c.put(request, res.clone())); return res; })
+        .then((res) => {
+          try {
+            const copy = res.clone();
+            caches.open(CACHE_VERSION).then((c) => c.put(request, copy));
+          } catch (_) { /* body may already be consumed */ }
+          return res;
+        })
         .catch(() => caches.match(request).then((cached) => cached || caches.match('index.html')).then((r) => r || caches.match('offline.html')))
     );
     return;
