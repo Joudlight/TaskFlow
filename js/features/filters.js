@@ -144,9 +144,21 @@
     });
     $('#bulkDeleteBtn').addEventListener('click', () => {
       const ids = Array.from(state.selectedIds);
-      App.Store.bulkDelete(ids);
-      App.Sounds.play('delete');
-      App.Toast.show({ type: 'danger', message: `Deleted ${ids.length} tasks` });
+      const count = ids.length;
+      if (state.activeFilter === 'trash') {
+        if (!confirm('Permanently delete these tasks? This action cannot be undone.')) return;
+        App.Store.bulkPermanentDelete(ids);
+        App.Sounds.play('delete');
+        App.Toast.show({ type: 'danger', message: `Permanently deleted ${count} tasks`, icon: 'danger' });
+      } else {
+        const tasks = ids.map((id) => App.Store.getTask(id)).filter(Boolean);
+        App.Store.bulkDelete(ids);
+        App.Sounds.play('delete');
+        App.Toast.show({
+          type: 'danger', message: `Deleted ${count} tasks`, icon: 'danger', persistent: true,
+          actionLabel: 'Undo', onAction: () => { tasks.forEach((t) => App.Store.restoreTask(t.id)); App.Toast.show({ message: `${count} tasks restored`, type: 'success' }); },
+        });
+      }
       setSelectMode(false);
     });
     $('#bulkMoveSelect').addEventListener('change', (e) => {
@@ -183,6 +195,7 @@
     App.Tasks.renderList();
     updateBulkBar();
     if (window.innerWidth <= 980) App.Helpers.$('#appSidebar').classList.remove('is-open');
+    App.Storage.set('activeFilter', filter);
   }
 
   function refreshSidebarCounts() {
@@ -206,6 +219,8 @@
   function init() {
     initToolbar();
     initBulkBar();
+    const savedFilter = App.Storage.get('activeFilter', null);
+    if (savedFilter && savedFilter !== 'all') setActiveFilter(savedFilter);
     App.Store.on('tasks:changed', refreshSidebarCounts);
     App.Store.on('categories:changed', refreshSidebarCounts);
     App.Store.on('categories:changed', populateBulkMoveSelect);

@@ -260,10 +260,14 @@
   function toggleFullscreenFocus() {
     const isFs = document.documentElement.getAttribute('data-focus-mode') === 'fullscreen';
     document.documentElement.setAttribute('data-focus-mode', isFs ? 'normal' : 'fullscreen');
+    const btn = $('#focusFullscreenBtn');
+    if (btn) btn.textContent = isFs ? 'Distraction-free' : 'Exit Distraction-free';
   }
 
   function renderClock() {
     try {
+      const focusView = $('#view-focus');
+      if (!focusView || focusView.hidden) return;
       const timeEl = $('#focusClockTime');
       const dateEl = $('#focusClockDate');
       if (!timeEl || !dateEl) return;

@@ -54,8 +54,25 @@
     return D.addDays(c, -offset);
   }
 
+  function isEmptyMonth() {
+    return App.Store.state.tasks.filter((t) => {
+      if (!t.dueDate || t.archived) return false;
+      const d = D.fromISODate(t.dueDate);
+      return d && d.getMonth() === cursor.getMonth() && d.getFullYear() === cursor.getFullYear();
+    }).length === 0;
+  }
+
   function renderMonth() {
     const wrap = el('div');
+    const noTasks = isEmptyMonth();
+    if (noTasks) {
+      wrap.appendChild(el('div', { class: 'empty-state', style: 'margin-top:40px;' }, [
+        el('div', { html: '<svg viewBox="0 0 24 24" fill="none" width="40" height="40"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg>' }),
+        el('h3', { text: 'No tasks this month' }),
+        el('p', { text: 'Click any day to add a task, or add one from the Tasks view.' }),
+      ]));
+      return wrap;
+    }
     const grid = el('div', { class: 'cal-grid' });
     const weekdayLabels = App.Store.state.settings.weekStartsMonday
       ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -90,6 +107,19 @@
   function renderWeek() {
     const wrap = el('div', { class: 'cal-week-grid' });
     const start = startOfWeek(cursor);
+    const weekTasks = App.Store.state.tasks.filter((t) => {
+      if (!t.dueDate || t.archived) return false;
+      const d = D.fromISODate(t.dueDate);
+      return d && d >= start && d <= D.addDays(start, 6);
+    });
+    if (!weekTasks.length) {
+      wrap.appendChild(el('div', { class: 'empty-state', style: 'margin-top:40px;' }, [
+        el('div', { html: '<svg viewBox="0 0 24 24" fill="none" width="40" height="40"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg>' }),
+        el('h3', { text: 'No tasks this week' }),
+        el('p', { text: 'Add a task with a due date to see it here.' }),
+      ]));
+      return wrap;
+    }
     const head = el('div', { class: 'cal-week-head' });
     head.appendChild(el('div'));
     for (let i = 0; i < 7; i++) {

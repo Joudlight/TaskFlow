@@ -76,7 +76,7 @@
         </div>
         ${subtaskTotal ? `<div class="task-item__subtask-summary">${ICON.subtask} ${subtaskDone}/${subtaskTotal} subtasks</div>` : ''}
         <div class="task-item__meta">${renderMetaTags(task)}</div>
-        ${task.progress > 0 && task.progress < 100 ? `<div class="task-item__progress"><span style="width:${task.progress}%"></span></div>` : ''}
+        ${(function() { const p = subtaskTotal && !task.progress ? Math.round((subtaskDone / subtaskTotal) * 100) : task.progress; return p > 0 && p < 100 ? `<div class="task-item__progress"><span style="width:${p}%"></span></div>` : ''; })()}
       </div>
       <div class="task-item__actions">${opts.isTrash ? `
         <button class="btn-icon" data-action="restore" aria-label="Restore task">${ICON.restore}</button>
@@ -112,6 +112,8 @@
     ]);
   }
 
+  const collapsedGroups = new Set();
+
   function renderList() {
     const container = $('#taskListContainer');
     if (!container) return;
@@ -124,8 +126,9 @@
     }
 
     groups.forEach((group) => {
-      const groupEl = el('div', { class: 'task-group' }, [
-        el('div', { class: 'task-group__title' }, [group.label, el('span', { class: 'count', text: ` ${group.tasks.length}` })]),
+      const isCollapsed = collapsedGroups.has(group.key);
+      const groupEl = el('div', { class: 'task-group' + (isCollapsed ? ' is-collapsed' : '') }, [
+        el('div', { class: 'task-group__title', dataset: { groupKey: group.key } }, [group.label, el('span', { class: 'count', text: ` ${group.tasks.length}` })]),
       ]);
       const list = el('ul', { class: 'task-list' });
       const activeFilter = App.Filters.state.activeFilter;
@@ -139,7 +142,21 @@
       groupEl.appendChild(list);
       container.appendChild(groupEl);
     });
+    initGroupCollapse();
     App.DragDrop.attachListHandlers(container);
+  }
+
+  function initGroupCollapse() {
+    const container = $('#taskListContainer');
+    container.querySelectorAll('.task-group__title').forEach((title) => {
+      title.addEventListener('click', (e) => {
+        const key = title.dataset.groupKey;
+        if (!key) return;
+        const group = title.closest('.task-group');
+        if (collapsedGroups.has(key)) { collapsedGroups.delete(key); group.classList.remove('is-collapsed'); }
+        else { collapsedGroups.add(key); group.classList.add('is-collapsed'); }
+      });
+    });
   }
 
   // ---------------- Quick add ----------------
@@ -282,12 +299,52 @@
     }
   }
 
+  function updateTabTitle() {
+    const due = App.Store.state.tasks.filter((t) => t.dueDate && D.isToday(t.dueDate) && t.status !== 'completed');
+    const overdue = App.Store.state.tasks.filter((t) => t.dueDate && D.isPast(t.dueDate) && t.status !== 'completed');
+    const total = due.length + overdue.length;
+    document.title = total ? `(${total}) Flow` : 'Flow \u2014 Focus & Task Manager';
+  }
+
+  function initSwipeComplete() {
+    const container = $('#taskListContainer');
+    let startX = 0, startY = 0, swiping = false;
+    container.addEventListener('touchstart', (e) => {
+      const item = e.target.closest('.task-item');
+      if (!item || item.querySelector('.task-select-check')) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      swiping = false;
+    }, { passive: true });
+    container.addEventListener('touchmove', (e) => {
+      if (!startX) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        swiping = true;
+      }
+    }, { passive: true });
+    container.addEventListener('touchend', (e) => {
+      if (!swiping) return;
+      const item = e.target.closest('.task-item');
+      if (!item) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (dx < -60) {
+        const id = item.dataset.taskId;
+        if (id) handleToggle(id, item);
+      }
+      startX = 0; swiping = false;
+    }, { passive: true });
+  }
+
   function init() {
     initQuickAdd();
     initDelegation();
-    App.Store.on('tasks:changed', renderList);
+    initSwipeComplete();
+    App.Store.on('tasks:changed', () => { renderList(); updateTabTitle(); });
     App.Store.on('categories:changed', renderList);
     renderList();
+    updateTabTitle();
   }
 
   App.Tasks = { init, renderList, renderTaskItem, ICON, priorityLabel, taskCategory };

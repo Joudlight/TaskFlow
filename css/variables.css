@@ -92,7 +92,9 @@
   --accent-500: var(--accent-indigo-500);
   --accent-600: var(--accent-indigo-600);
   --accent-tint: #eef0fe;
-  --accent-tint: color-mix(in srgb, var(--accent-500) 10%, var(--color-bg, #fafaf9));
+  @supports (background: color-mix(in srgb, red 10%, blue)) {
+    --accent-tint: color-mix(in srgb, var(--accent-500) 10%, var(--color-bg, #fafaf9));
+  }
   --accent-a-20: rgba(91, 95, 239, 0.2);
   --accent-a-30: rgba(91, 95, 239, 0.3);
 }

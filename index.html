@@ -68,12 +68,13 @@
 <link rel="stylesheet" href="css/dashboard.css">
 <link rel="stylesheet" href="css/print.css">
 <link rel="stylesheet" href="css/notes.css">
-<link rel="stylesheet" href="css/tables.css">
+<link rel="stylesheet" href="css/table-manager.css">
+<link rel="stylesheet" href="css/vault.css">
 </head>
 <body>
 <a href="#mainContent" class="skip-link">Skip to content</a>
 <div id="ariaLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-<div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
 
 <!-- ============ Welcome screen (first run only) ============ -->
 <div id="welcomeScreen" class="modal-overlay" hidden style="align-items:center;">
@@ -91,6 +92,9 @@
         <button id="tourPrevBtn" class="btn btn-secondary" hidden style="flex:1;">Back</button>
         <button id="tourNextBtn" class="btn btn-primary" style="flex:1;">Next</button>
         <button id="tourFinishBtn" class="btn btn-primary" hidden style="flex:1;">Start using Flow</button>
+      </div>
+      <div id="tourClearWrap" style="margin-top:16px;min-height:20px;">
+        <button id="clearDemoDataBtn" hidden style="background:none;border:none;font-size:12px;color:var(--color-text-tertiary);text-decoration:underline;cursor:pointer;padding:4px 8px;">Start fresh — clear all demo data</button>
       </div>
     </div>
   </div>
@@ -149,6 +153,7 @@
           <button class="sidebar-link" data-view="tables"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.8"/></svg>Tables</button>
           <button class="sidebar-link" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Dashboard</button>
           <button class="sidebar-link" data-view="focus"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Focus</button>
+          <button class="sidebar-link" data-view="vault"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V7a4 4 0 118 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Vault</button>
         </nav>
       </div>
       <div>
@@ -288,24 +293,15 @@
       </section>
 
       <section id="view-tables" class="view" hidden data-print-title="Tables">
-        <div class="view-header">
-          <div><h1>Tables</h1><p>Organize data in editable tables.</p></div>
-          <button id="tablesAddBtn" class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Add table</button>
-        </div>
-        <div class="tables-mobile-bar">
-          <button id="tablesBackBtn"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> All tables</button>
-        </div>
-        <div id="tablesContainer" class="tables-layout">
-          <div id="tablesList" class="tables-list"></div>
-          <div id="tablesEditor" class="tables-editor"></div>
-          <div id="tablesEmpty" class="tables-empty">
-            <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.8"/></svg>
-            <h3>No tables yet</h3>
-            <p>Tap the Add table button to create your first table.</p>
-          </div>
-        </div>
+        <div id="tablesEditor" style="height:100%;display:flex;flex-direction:column;"></div>
       </section>
 
+      <section id="view-vault" class="view" hidden>
+        <div class="view-header">
+          <div><h1>Vault</h1><p>Your encrypted, private workspace — entirely local and secure.</p></div>
+        </div>
+        <div id="vaultContent" style="flex:1;display:flex;flex-direction:column;min-height:0;"></div>
+      </section>
       <section id="view-focus" class="view" hidden data-print-title="Focus timer">
         <div class="view-header">
           <div><h1>Focus timer</h1><p>Deep work, then a proper break.</p></div>
@@ -371,6 +367,7 @@
       <button class="mobile-tabbar__btn" data-view="calendar"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg>Calendar</button>
       <button class="mobile-tabbar__btn" data-view="notes"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v2l-4 4 4 4v2H6v-2l4-4-4-4V4z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Notes</button>
       <button class="mobile-tabbar__btn" data-view="tables"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.8"/></svg>Tables</button>
+      <button class="mobile-tabbar__btn" data-view="vault"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V7a4 4 0 118 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Vault</button>
       <button class="mobile-tabbar__btn" data-view="focus"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Focus</button>
       <button class="mobile-tabbar__btn" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Stats</button>
     </div>
@@ -514,39 +511,6 @@
     <div id="attachmentPreviewBody" class="modal__body"></div>
     <div class="modal__footer">
       <a id="attachmentDownloadBtn" class="btn btn-secondary" download>Download</a>
-    </div>
-  </div>
-</div>
-
-<!-- ============ Create table modal ============ -->
-<div id="createTableModal" class="modal-overlay" aria-hidden="true">
-  <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="createTableTitle">
-    <div class="modal__header">
-      <h2 id="createTableTitle">Create table</h2>
-      <button id="createTableCloseBtn" class="btn-icon" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
-    </div>
-    <div class="modal__body">
-      <div class="create-table-form">
-        <div class="field">
-          <label for="createTableNameInput">Table name</label>
-          <input id="createTableNameInput" class="input" type="text" placeholder="My table">
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label for="createTableRowsInput">Rows</label>
-            <input id="createTableRowsInput" class="input" type="number" min="1" max="50" value="3">
-          </div>
-          <div class="field">
-            <label for="createTableColsInput">Columns</label>
-            <input id="createTableColsInput" class="input" type="number" min="1" max="20" value="3">
-          </div>
-        </div>
-        <div id="createTablePreview" class="create-table-preview"></div>
-      </div>
-    </div>
-    <div class="modal__footer">
-      <button id="createTableCancelBtn" class="btn btn-secondary">Cancel</button>
-      <button id="createTableConfirmBtn" class="btn btn-primary">Create</button>
     </div>
   </div>
 </div>
@@ -729,6 +693,7 @@
 <script src="js/features/filters.js" defer></script>
 <script src="js/features/dragdrop.js" defer></script>
 <script src="js/features/calendar.js" defer></script>
+<script src="js/features/focus-sticky.js" defer></script>
 <script src="js/features/pomodoro.js" defer></script>
 <script src="js/features/dashboard.js" defer></script>
 <script src="js/features/quotes-data.js" defer></script>
@@ -740,9 +705,15 @@
 <script src="js/features/print.js" defer></script>
 <script src="js/features/achievements.js" defer></script>
 <script src="js/features/notes.js" defer></script>
-<script src="js/features/tables.js" defer></script>
-<script src="js/features/focus-sticky.js" defer></script>
+<script src="js/features/notes-emoji.js" defer></script>
+<script src="js/lib/table-manager.js" defer></script>
+    <script src="js/features/tables.js" defer></script>
 <script src="js/features/onboarding.js" defer></script>
+<script src="js/vault/vault-crypto.js" defer></script>
+<script src="js/vault/vault-storage.js" defer></script>
+<script src="js/vault/vault-auth.js" defer></script>
+<script src="js/vault/vault-ui.js" defer></script>
+<script src="js/vault/vault.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>

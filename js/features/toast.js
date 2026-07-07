@@ -17,7 +17,7 @@
   function show(opts) {
     const container = App.Helpers.$('#toastContainer');
     if (!container) return;
-    const { message, type = 'info', actionLabel, onAction, duration = 4200 } = opts;
+    const { message, type = 'info', actionLabel, onAction, duration = 4200, persistent } = opts;
     const toast = el('div', { class: `toast toast--${type}`, role: 'status' }, [
       el('span', { class: 'toast__icon', html: ICONS[opts.icon] || ICONS[type] || ICONS.info }),
       el('span', { class: 'toast__msg', text: message }),
@@ -26,8 +26,10 @@
     ]);
     container.appendChild(toast);
     announce(message);
-    const timer = setTimeout(() => dismiss(toast), duration);
-    toast._timer = timer;
+    if (!persistent) {
+      const timer = setTimeout(() => dismiss(toast), duration);
+      toast._timer = timer;
+    }
     return toast;
   }
 

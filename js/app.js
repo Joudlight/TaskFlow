@@ -8,7 +8,7 @@
   window.App = window.App || {};
   const { $, $all, fireRipple } = App.Helpers;
 
-  const VIEWS = ['tasks', 'calendar', 'dashboard', 'focus', 'notes', 'tables'];
+  const VIEWS = ['tasks', 'calendar', 'dashboard', 'focus', 'notes', 'tables', 'vault'];
 
   function show(view) {
     if (!VIEWS.includes(view)) view = 'tasks';
@@ -18,7 +18,8 @@
     if (view === 'dashboard') App.Dashboard.refresh();
     if (view === 'notes') App.Notes.render();
     if (view === 'tables') App.Tables.render();
-    if (view !== 'focus' && document.documentElement.getAttribute('data-focus-mode') === 'fullscreen') {
+    if (view === 'vault') App.Vault.show();
+    if (view !== 'focus' && view !== 'vault' && document.documentElement.getAttribute('data-focus-mode') === 'fullscreen') {
       document.documentElement.setAttribute('data-focus-mode', 'normal');
     }
     history.replaceState(null, '', '#' + view);
@@ -106,6 +107,7 @@
     App.Onboarding.init();
     App.Notes.init();
     App.Tables.init();
+    App.Vault.init();
     App.Shortcuts.init();
 
     initViewNav();

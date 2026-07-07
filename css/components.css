@@ -94,8 +94,11 @@
 
 /* ---------------- Task list ---------------- */
 .task-group { margin-bottom: var(--space-6); }
-.task-group__title { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); font-weight: 700; color: var(--color-text-secondary); margin-bottom: var(--space-2); padding: 0 var(--space-1); }
+.task-group__title { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); font-weight: 700; color: var(--color-text-secondary); margin-bottom: var(--space-2); padding: 0 var(--space-1); cursor: pointer; user-select: none; }
+.task-group__title:hover { color: var(--color-text); }
 .task-group__title .count { font-weight: 500; color: var(--color-text-tertiary); }
+.task-group.is-collapsed .task-list { display: none; }
+.task-group.is-collapsed .task-group__title { margin-bottom: 0; }
 .task-list { display: flex; flex-direction: column; gap: var(--space-2); }
 
 .task-item {
@@ -115,7 +118,8 @@
 .task-item[data-priority="low"] { border-left: 3px solid var(--priority-low); }
 
 .task-item__drag-handle { color: var(--color-text-tertiary); cursor: grab; width: 16px; height: 40px; display: none; align-items: center; justify-content: center; flex-shrink: 0; touch-action: none; }
-@media (min-width: 721px) { .task-item__drag-handle { display: flex; } }
+@media (min-width: 721px) { .task-item__drag-handle { display: flex; opacity: 0.3; transition: opacity var(--dur-fast); } }
+.task-item:hover .task-item__drag-handle { opacity: 1; }
 .task-item__drag-handle:active { cursor: grabbing; }
 
 .task-checkbox {

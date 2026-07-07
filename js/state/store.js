@@ -333,6 +333,7 @@
   }
 
   function bulkDelete(ids) { ids.forEach((id) => deleteTask(id)); }
+  function bulkPermanentDelete(ids) { ids.forEach((id) => permanentlyDelete(id)); }
   function bulkComplete(ids) { ids.forEach((id) => { const t = getTask(id); if (t && t.status !== 'completed') toggleComplete(id); }); }
 
   function addCategory(name, color) {
@@ -500,7 +501,7 @@
   App.Store = {
     state, on, off, emit, init, save, makeTask,
     addTask, getTask, updateTask, toggleComplete, duplicateTask, archiveTask, restoreFromArchive, deleteTask, restoreTask,
-    permanentlyDelete, emptyTrash, reorderTasks, bulkUpdate, bulkDelete, bulkComplete,
+    permanentlyDelete, emptyTrash, reorderTasks, bulkUpdate, bulkDelete, bulkPermanentDelete, bulkComplete,
     addCategory, updateCategory, deleteCategory, saveAsTemplate, createFromTemplate, deleteTemplate,
     addNote, getNote, updateNote, deleteNote,
     addTable, getTable, updateTable, deleteTable,

@@ -9,17 +9,22 @@
 
   // ---------------- Tour guide ----------------
   var TOUR_STEPS = [
-    { title: 'Welcome to Flow', desc: 'A fast, private task manager that lives entirely on this device. No account, no tracking, works offline. Let us show you around!' },
-    { title: 'Your Tasks', desc: 'Browse tasks in the main list. Use the sidebar to filter by Today, Upcoming, Favorites, or Pinned. Tap any task to see full details and edit.' },
-    { title: 'Add Tasks Fast', desc: 'Use the Quick Add bar at the top to type tasks in plain English. Try "Meeting tomorrow 2pm" or "Read chapter 5 every week".' },
-    { title: 'Organize with Categories', desc: 'Categorize tasks as Work, Personal, Learning, Health, or Finance. Create your own categories with custom colors from the sidebar or Settings.' },
-    { title: 'Track Progress', desc: 'Add subtasks, set priority, track progress with the slider, and estimate duration. Every task gives you full control.' },
-    { title: 'Link Notes to Tasks', desc: 'Open a task, scroll to "Linked notes" and connect it to a note. Hit the \u201cNote\u201d button in the task header to jump there.' },
-    { title: 'Recurring Tasks', desc: 'Tasks can repeat daily, weekly, monthly, or on custom days \u2014 perfect for habits, standups, and routines.' },
-    { title: 'Calendar & Dashboard', desc: 'Switch to Calendar view for tasks by due date, or Dashboard for charts on your productivity trends.' },
-    { title: 'Focus Mode', desc: 'Use Focus view with a built-in Pomodoro timer to stay in the zone and track your deep work sessions.' },
-    { title: 'Keyboard Shortcuts', desc: 'Ctrl/Cmd+K for the command palette, N for a new task, / to search, T to toggle theme, ? for help.' },
-    { title: 'Your Data is Private', desc: 'Everything stays in your browser. Use Settings > Backup to export or import. No servers, no sync, total privacy.' },
+    { title: 'Welcome to Flow', desc: 'A fast, private task manager that lives entirely on this device. No account, no tracking, works offline. Let\u2019s take a quick tour of everything you can do.' },
+    { title: 'Your Tasks', desc: 'Browse tasks in the main list. Use the sidebar to filter by Today, Upcoming, Favorites, or Pinned. Tap any task to see full details and inline editing.' },
+    { title: 'Quick Add', desc: 'Type tasks in plain English using the Quick Add bar. Try \u201cMeeting tomorrow 2pm p1\u201d or \u201cRead chapter 5 every week\u201d \u2014 Flow parses dates, priority, and recurrence naturally.' },
+    { title: 'Categories & Filters', desc: 'Organize tasks as Work, Personal, Learning, Health, or Finance. Create custom categories with unique colors from Settings or the sidebar.' },
+    { title: 'Task Details', desc: 'Every task supports subtasks, priority levels (urgent / high / medium / low), progress tracking, estimated duration, tags, and reminders for full control.' },
+    { title: 'Recurring Tasks', desc: 'Set tasks to repeat daily, weekly, monthly, or on custom days of the week \u2014 perfect for habits, standups, and routines.' },
+    { title: 'Calendar View', desc: 'Switch to Calendar view to see all tasks grouped by due date. Each day shows task counts so you can plan your week at a glance.' },
+    { title: 'Notes', desc: 'The Notes view gives you a full markdown editor with live preview. Link notes directly to tasks from the task detail panel for easy cross-referencing.' },
+    { title: 'Tables', desc: 'The Table Editor creates spreadsheets with rich formatting: bold, italic, text color, background color, alignment, column resize, undo/redo, fill handle, copy/paste, and CSV import/export.' },
+    { title: 'Dashboard', desc: 'The Dashboard shows productivity trends, completion rates, category distribution, focus time stats, and your current streak at a glance.' },
+    { title: 'Focus Mode', desc: 'Use Focus view with a built-in Pomodoro timer to stay in the zone. Track sessions with custom intervals, add sticky notes, and review your deep work history.' },
+    { title: 'Vault', desc: 'The Vault is a local password manager. Store credentials with copy-to-clipboard and search \u2014 all data stays in your browser only.' },
+    { title: 'Command Palette & Shortcuts', desc: 'Press Ctrl/Cmd+K for the command palette. N for new task, / to search, T to toggle theme, X for multi-select, ? for help, , for settings.' },
+    { title: 'Multi-Select & Bulk Actions', desc: 'Press X to enter multi-select mode, then select several tasks at once to complete, delete, re-prioritize, or bulk-update.' },
+    { title: 'Themes & Settings', desc: 'Customize with light/dark/auto themes, accent colors, font sizes, interface density, and high contrast mode \u2014 all from the Settings panel.' },
+    { title: 'You\u2019re Ready!', desc: 'The demo data includes sample tasks, notes, and a table to help you get started. Explore freely, or click \u201cStart fresh\u201d below to begin with a clean slate.' },
   ];
 
   var tourStep = 0;
@@ -41,6 +46,7 @@
     $('#tourPrevBtn').hidden = tourStep === 0;
     $('#tourNextBtn').hidden = tourStep >= TOUR_STEPS.length - 1;
     $('#tourFinishBtn').hidden = tourStep < TOUR_STEPS.length - 1;
+    $('#clearDemoDataBtn').hidden = tourStep < TOUR_STEPS.length - 1;
     var dots = $('#tourDots');
     dots.innerHTML = TOUR_STEPS.map(function (s, i) {
       return '<span style="width:8px;height:8px;border-radius:50%;background:' + (i === tourStep ? 'var(--accent-500)' : 'var(--color-border-strong)') + ';transition:background var(--dur-fast);"></span>';
@@ -286,12 +292,37 @@
     }
   }
 
+  function clearDemoData() {
+    if (!confirm('Clear all demo data and start fresh? This will remove all tasks, notes, tables, and categories.')) return;
+    var s = App.Store.state;
+    s.tasks = [];
+    s.trash = [];
+    s.notes = [];
+    s.tables = [];
+    s.categories = [];
+    s.templates = [];
+    s.pomodoroSessions = [];
+    s.achievementsUnlocked = [];
+    s.activityLog = [];
+    s.quoteFavorites = [];
+    s.focusStickyNotes = [];
+    s.streak = { current: 0, longest: 0, lastCompletionDate: null };
+    App.Store.updateSettings({ onboardingComplete: true });
+    App.Store.save();
+    App.Store.emit('tasks:changed', { type: 'purge' });
+    App.Store.emit('notes:changed', { type: 'purge' });
+    App.Store.emit('tables:changed', { type: 'purge' });
+    finishTour();
+    App.Toast.show({ message: 'All demo data cleared. You\'re starting fresh!', type: 'success' });
+  }
+
   function init() {
     initSettingsControls();
     initHelpModal();
     $('#tourNextBtn').addEventListener('click', nextTourStep);
     $('#tourPrevBtn').addEventListener('click', prevTourStep);
     $('#tourFinishBtn').addEventListener('click', finishTour);
+    $('#clearDemoDataBtn').addEventListener('click', clearDemoData);
     renderSidebarCategories();
     renderCategoryManager();
     App.Store.on('categories:changed', () => { renderSidebarCategories(); renderCategoryManager(); });

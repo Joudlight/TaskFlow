@@ -57,7 +57,11 @@
 
   function fireConfetti() {
     if (App.Store.state.settings.reducedMotion) return;
-    const layer = $('#confettiLayer');
+    let layer = $('#confettiLayer');
+    if (!layer) {
+      layer = el('div', { id: 'confettiLayer', class: 'confetti-layer', 'aria-hidden': 'true' });
+      document.body.appendChild(layer);
+    }
     const colors = ['#5b5fef', '#10b981', '#f59e0b', '#f43f5e', '#14b8a6', '#8b5cf6'];
     for (let i = 0; i < 90; i++) {
       const piece = el('div', { class: 'confetti-piece' });
